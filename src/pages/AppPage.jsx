@@ -1,54 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
-import { relevelText, reexplainText } from '../lib/api';
-import Tesseract from 'tesseract.js';
+import { useRelevel } from '../context/RelevelContext';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LANGUAGES = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-  { code: 'fr', name: 'French', flag: '🇫🇷' },
-  { code: 'de', name: 'German', flag: '🇩🇪' },
-  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
-  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
-  { code: 'pt', name: 'Portuguese', flag: '🇧🇷' },
-  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
-  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
-  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
-  { code: 'it', name: 'Italian', flag: '🇮🇹' },
-];
-
 export default function AppPage() {
-  // Core states
+  const {
+    LANGUAGES,
+    appState, setAppState,
+    inputText, setInputText,
+    inputError, setInputError,
+    uploadedImage, setUploadedImage,
+    isExtractingText,
+    ocrProgress,
+    selectedLang, setSelectedLang,
+    gradeLevel, setGradeLevel,
+    currentExplanation,
+    explanationHistory,
+    isRegenerating,
+    historyItems,
+    handleRelevel,
+    handleExplainDifferently,
+    handleLoadHistory,
+    handleNewRelevel,
+    processImageOCR
+  } = useRelevel();
+
+  // Local UI states
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
-  const [uploadedImage, setUploadedImage] = useState(null);
-  const [inputText, setInputText] = useState("");
-  const [inputError, setInputError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
   
-  // OCR states
-  const [isExtractingText, setIsExtractingText] = useState(false);
-  const [ocrProgress, setOcrProgress] = useState(0);
-  
-  // Controls state
-  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+  // Controls local state
   const [langSearch, setLangSearch] = useState("");
   const [langOpen, setLangOpen] = useState(false);
-  const [gradeLevel, setGradeLevel] = useState(8);
   const dropdownRef = useRef(null);
   
-  // App view state
-  const [appState, setAppState] = useState("input"); // "input", "loading", "result"
-  const [explanationHistory, setExplanationHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [currentExplanation, setCurrentExplanation] = useState(
-    "This is your highly simplified, re-leveled output text. It has been perfectly adjusted to your selected reading level.\n\nNotice how the complex vocabulary and convoluted sentence structures have been carefully unwrapped into clear, direct statements.\n\nYou can click anywhere in this card to edit the text manually if you want to make further tweaks before saving it to your history or exporting it."
-  );
   
   // Audio playback state
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -127,69 +116,7 @@ export default function AppPage() {
     };
   }, []);
 
-  const handleRelevel = async () => {
-    setInputError("");
-    const text = inputText.trim();
-    
-    if (!text) {
-      setInputError("Please enter some text to re-level.");
-      return;
-    }
-    
-    if (text.length < 10) {
-      setInputError("That text is a bit too short. Please enter at least 10 characters.");
-      return;
-    }
-    
-    if (text.length > 5000) {
-      setInputError("That text is too long! Please keep it under 5000 characters.");
-      return;
-    }
-    
-    setAppState("loading");
-    
-    try {
-      const response = await relevelText(text, selectedLang.name, gradeLevel);
-      setCurrentExplanation(response);
-      setAppState("result");
-      
-      // Save to history
-      const title = inputText.trim().split(' ').slice(0, 4).join(' ') + '...';
-      const snippet = response.split(' ').slice(0, 10).join(' ') + '...';
-      const newItem = {
-        id: Date.now(),
-        title,
-        snippet,
-        originalText: inputText.trim(),
-        resultText: response,
-        lang: selectedLang,
-        grade: gradeLevel,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-      };
-      setHistoryItems(prev => [newItem, ...prev]);
-      
-    } catch (error) {
-      console.error(error);
-      setAppState("error");
-    }
-  };
-  
-  const handleExplainDifferently = async () => {
-    setIsRegenerating(true);
-    const historyToPass = [currentExplanation, ...explanationHistory];
-    setExplanationHistory(historyToPass);
-    
-    try {
-      const response = await reexplainText(inputText.trim(), selectedLang.name, gradeLevel, historyToPass);
-      setCurrentExplanation(response);
-    } catch (error) {
-      console.error(error);
-      setExplanationHistory(prev => prev.slice(1)); 
-    } finally {
-      setIsRegenerating(false);
-    }
-  };
-
+  // Handlers moved to RelevelContext
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -202,38 +129,7 @@ export default function AppPage() {
 
   const filteredLangs = LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase()));
 
-  const processImageOCR = async (file) => {
-    setIsExtractingText(true);
-    setOcrProgress(0);
-    setInputError("");
-    try {
-      const result = await Tesseract.recognize(
-        file,
-        'eng',
-        { logger: m => {
-          if (m.status === 'recognizing text') {
-            setOcrProgress(Math.round(m.progress * 100));
-          }
-        }}
-      );
-      
-      const extractedText = result.data.text.trim();
-      if (!extractedText) {
-        setInputText("");
-        setInputError("We couldn't detect any text in that image. Try a clearer photo or typing manually.");
-      } else {
-        setInputText(extractedText);
-      }
-    } catch (error) {
-      console.error("OCR Error:", error);
-      setInputText("");
-      setInputError("Failed to extract text from image. Please type manually.");
-    } finally {
-      setIsExtractingText(false);
-      setOcrProgress(0);
-    }
-  };
-
+  // OCR handled in RelevelContext
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -261,51 +157,7 @@ export default function AppPage() {
     }
   };
 
-  // History state mapped to localStorage
-  const [historyItems, setHistoryItems] = useState(() => {
-    const saved = localStorage.getItem('relevel_history');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('relevel_history', JSON.stringify(historyItems));
-  }, [historyItems]);
-
-  const handleLoadHistory = (item) => {
-    setInputText(item.originalText);
-    setUploadedImage(null);
-    const matchingLang = LANGUAGES.find(l => l.code === item.lang.code) || item.lang;
-    setGradeLevel(item.grade);
-    setSelectedLang(matchingLang);
-    setCurrentExplanation(item.resultText);
-    setExplanationHistory([]); 
-    setAppState("result");
-    
-    // Auto-close sidebar on mobile after selection
-    if (window.innerWidth < 768) {
-      setSidebarOpen(false);
-    }
-  };
-  
-  const handleNewRelevel = () => {
-    setInputText("");
-    setInputError("");
-    setUploadedImage(null);
-    setCurrentExplanation("");
-    setExplanationHistory([]);
-    setAppState("input");
-    if (window.innerWidth < 768) {
-      setSidebarOpen(false);
-    }
-  };
-
+  // History loaded via context
   return (
     <div className="min-h-screen bg-[#F5F7FA] font-sans flex flex-col h-screen overflow-hidden">
       <Navbar isApp={true} />
@@ -333,7 +185,10 @@ export default function AppPage() {
         `}>
           <div className="p-4 flex items-center justify-between shrink-0">
             <button 
-              onClick={handleNewRelevel}
+              onClick={() => {
+                handleNewRelevel();
+                if (window.innerWidth < 768) setSidebarOpen(false);
+              }}
               className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm active:scale-95 w-full justify-center"
             >
               <Plus className="w-4 h-4" />
@@ -356,7 +211,10 @@ export default function AppPage() {
               {historyItems.map((item) => (
                 <div 
                   key={item.id} 
-                  onClick={() => handleLoadHistory(item)}
+                  onClick={() => {
+                    handleLoadHistory(item);
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
                   className="relative group w-full text-left p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 cursor-pointer shadow-sm hover:shadow"
                 >
                   <div className="flex justify-between items-start mb-1">
