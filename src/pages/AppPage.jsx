@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LANGUAGES = [
@@ -50,8 +50,12 @@ export default function AppPage() {
     setAppState("loading");
     // Simulate API call
     setTimeout(() => {
-      setAppState("result");
-    }, 2500);
+      if (inputText.toLowerCase().includes('error')) {
+        setAppState("error");
+      } else {
+        setAppState("result");
+      }
+    }, 2000);
   };
   
   const handleExplainDifferently = () => {
@@ -226,8 +230,12 @@ export default function AppPage() {
               ))}
               
               {historyItems.length === 0 && (
-                <div className="text-center p-4 text-sm text-slate-400">
-                  No history yet. Start learning!
+                <div className="text-center p-6 flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 rounded-2xl mx-1 mt-4">
+                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                    <FileText className="w-5 h-5 text-slate-400" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-600 mb-1">No history yet</p>
+                  <p className="text-[11px] text-slate-400 text-center leading-relaxed px-2">Your past explanations and translations will automatically save here.</p>
                 </div>
               )}
             </div>
@@ -275,6 +283,20 @@ export default function AppPage() {
             
             {appState === "input" && (
               <div className="max-w-3xl mx-auto w-full pt-8 lg:pt-12 pb-20">
+                
+              {historyItems.length === 0 && (
+                <div className="mb-10 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-[2.5rem] border border-blue-100/50 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-40 translate-x-1/2 -translate-y-1/2"></div>
+                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-5 shadow-sm border border-blue-50 relative z-10">
+                    <Sparkles className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-navy mb-2 relative z-10">Welcome to Re-Level!</h3>
+                  <p className="text-slate-500 text-[15px] text-center max-w-sm relative z-10 leading-relaxed">
+                    Paste your first difficult passage, or snap a photo of your textbook below to get started.
+                  </p>
+                </div>
+              )}
+                
               <div className="mb-8 text-center md:text-left">
                 <h3 className="text-3xl font-bold text-navy mb-3">What are we learning today?</h3>
                 <p className="text-slate-500 text-[15px]">
@@ -597,6 +619,37 @@ export default function AppPage() {
                     )}
                   </div>
                   
+                </div>
+              </div>
+            )}
+
+            {/* Error View */}
+            {appState === "error" && (
+              <div className="max-w-2xl mx-auto w-full pt-16 pb-20">
+                <div className="bg-amber-50 rounded-[2.5rem] p-8 md:p-12 border border-amber-100 flex flex-col items-center text-center shadow-sm">
+                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-amber-100 relative">
+                    <div className="absolute inset-0 bg-amber-100 rounded-full animate-ping opacity-20"></div>
+                    <AlertCircle className="w-10 h-10 text-amber-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-3">Oops, something went wrong</h3>
+                  <p className="text-slate-600 mb-8 max-w-md leading-relaxed text-[15px]">
+                    We couldn't quite process your text. This sometimes happens if an uploaded photo is too blurry, or if our translation servers are taking a brief nap.
+                  </p>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => setAppState("input")}
+                      className="px-6 py-3 rounded-xl border border-amber-200 bg-white text-amber-700 font-bold text-[15px] hover:bg-amber-100/50 transition-colors shadow-sm"
+                    >
+                      Go back
+                    </button>
+                    <button 
+                      onClick={handleRelevel}
+                      className="bg-amber-500 text-white px-8 py-3 rounded-xl font-bold text-[15px] hover:bg-amber-600 shadow-sm hover:shadow active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Try again
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
