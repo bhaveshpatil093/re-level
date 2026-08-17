@@ -1,0 +1,40 @@
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+
+export function Button({ 
+  children, 
+  variant = 'solid', 
+  className = '', 
+  href,
+  onClick,
+  ...props 
+}) {
+  const baseStyle = "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 ease-in-out px-6 py-3 text-small tracking-wide hover:-translate-y-0.5"
+  
+  const variants = {
+    solid: "bg-primary-600 text-white hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-600/20 border border-transparent",
+    outline: "bg-transparent text-navy border-2 border-navy hover:bg-navy/5",
+  }
+
+  const classes = `${baseStyle} ${variants[variant]} ${className}`
+
+  if (href) {
+    return (
+      <Link to={href} className={classes} {...props}>
+        {children}
+      </Link>
+    )
+  }
+
+  return (
+    <motion.button 
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick} 
+      className={classes} 
+      {...props}
+    >
+      {children}
+    </motion.button>
+  )
+}

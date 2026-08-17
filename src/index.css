@@ -1,7 +1,11 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   body {
-    @apply bg-zinc-950 text-zinc-50 antialiased;
+    @apply bg-background text-body font-sans text-slate-600 antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-navy font-bold tracking-tight;
   }
 }
