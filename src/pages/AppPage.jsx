@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause } from 'lucide-react';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LANGUAGES = [
@@ -119,13 +119,54 @@ export default function AppPage() {
     }
   };
 
-  // Mock history data
-  const history = [
-    { id: 1, title: 'Cellular Respiration', date: 'Today' },
-    { id: 2, title: 'Hamlet Act 1 Scene 2', date: 'Yesterday' },
-    { id: 3, title: 'Federalist Paper 10', date: 'Oct 12' },
-    { id: 4, title: 'Photosynthesis Overview', date: 'Oct 10' },
-  ];
+  // History state
+  const [historyItems, setHistoryItems] = useState([
+    { 
+      id: 1, 
+      title: 'Cellular Respiration', 
+      snippet: 'Think of mitochondria as the tiny power plants inside your body\'s cells.',
+      originalText: 'The mitochondria are double-membrane-bound organelles found in most eukaryotic organisms. They generate most of the cell\'s supply of adenosine triphosphate (ATP), used as a source of chemical energy.',
+      resultText: 'Think of mitochondria as the tiny power plants inside your body\'s cells. They take in nutrients and create a special energy (called ATP) that the cell needs to work.',
+      lang: LANGUAGES.find(l => l.code === 'en'),
+      grade: 6,
+      date: '2h ago' 
+    },
+    { 
+      id: 2, 
+      title: 'Hamlet Act 1 Scene 2', 
+      snippet: 'El rey de Dinamarca habla a la corte sobre su matrimonio...',
+      originalText: 'Though yet of Hamlet our dear brother\'s death The memory be green, and that it us befitted To bear our hearts in grief and our whole kingdom To be contracted in one brow of woe...',
+      resultText: 'El rey de Dinamarca habla a la corte sobre su matrimonio con la reina. Dice que aunque todos están tristes por la muerte de su hermano (el rey anterior), la vida debe continuar y por eso se ha casado.',
+      lang: LANGUAGES.find(l => l.code === 'es'),
+      grade: 8,
+      date: 'Yesterday' 
+    },
+    { 
+      id: 3, 
+      title: 'Photosynthesis Overview', 
+      snippet: 'Les plantes utilisent la lumière du soleil pour fabriquer...',
+      originalText: 'Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy that, through cellular respiration, can later be released to fuel the organism\'s activities.',
+      resultText: 'Les plantes utilisent la lumière du soleil pour fabriquer leur propre nourriture. C\'est comme cuisiner, mais au lieu d\'un four, elles utilisent le soleil !',
+      lang: LANGUAGES.find(l => l.code === 'fr'),
+      grade: 5,
+      date: 'Oct 10' 
+    }
+  ]);
+
+  const handleLoadHistory = (item) => {
+    setInputText(item.originalText);
+    setUploadedImage(null);
+    setGradeLevel(item.grade);
+    setSelectedLang(item.lang);
+    setCurrentExplanation(item.resultText);
+    setExplanationHistory([]); 
+    setAppState("result");
+    
+    // Auto-close sidebar on mobile after selection
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] font-sans flex flex-col h-screen overflow-hidden">
@@ -151,13 +192,44 @@ export default function AppPage() {
               Recent History
             </div>
             
-            <div className="flex-1 overflow-y-auto space-y-2 no-scrollbar px-2 -mx-2">
-              {history.map((item) => (
-                <button key={item.id} className="w-full text-left px-3 py-3 rounded-xl hover:bg-slate-50 transition-colors group flex flex-col border border-transparent hover:border-slate-100">
-                  <span className="font-medium text-navy text-sm truncate group-hover:text-blue-600 transition-colors w-full">{item.title}</span>
-                  <span className="text-xs text-slate-400 mt-1">{item.date}</span>
-                </button>
+            <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar px-2 -mx-2">
+              {historyItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  onClick={() => handleLoadHistory(item)}
+                  className="relative group w-full text-left p-3 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 cursor-pointer shadow-sm hover:shadow"
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-navy text-sm truncate pr-6 group-hover:text-blue-600 transition-colors">{item.title}</span>
+                    <span className="text-[11px] font-semibold text-slate-400 shrink-0 mt-0.5">{item.date}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-2.5 leading-relaxed">
+                    {item.snippet}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 uppercase">Gr {item.grade}</span>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 uppercase flex items-center gap-1">{item.lang.flag} {item.lang.code}</span>
+                  </div>
+                  
+                  {/* Delete button */}
+                  <button 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setHistoryItems(prev => prev.filter(i => i.id !== item.id)); 
+                    }}
+                    className="absolute top-2 right-2 w-7 h-7 bg-white border border-slate-200 rounded-lg text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                    aria-label="Delete history item"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               ))}
+              
+              {historyItems.length === 0 && (
+                <div className="text-center p-4 text-sm text-slate-400">
+                  No history yet. Start learning!
+                </div>
+              )}
             </div>
             
             <div className="mt-auto pt-6 border-t border-slate-100 space-y-2">
@@ -190,8 +262,10 @@ export default function AppPage() {
               New Workspace
             </h2>
             
-            {/* Mobile Sidebar Toggle */}
-            <button className="md:hidden text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden text-slate-500 hover:text-navy hover:bg-slate-100 bg-slate-50 p-2 rounded-lg border border-slate-200 transition-colors"
+            >
               <History className="w-5 h-5" />
             </button>
           </div>
