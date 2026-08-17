@@ -224,7 +224,7 @@ export default function Landing() {
               className="flex overflow-x-auto sm:flex-wrap items-center sm:justify-center gap-3 mt-6 pb-2 no-scrollbar snap-x"
             >
               {['Translate', 'Simplify', 'Re-explain', 'Read Aloud', 'Save & Track'].map((tab, idx) => (
-                <button key={tab} className={`shrink-0 snap-center px-6 py-3 rounded-full text-[15px] font-medium transition-colors ${idx === 1 ? 'bg-navy text-white shadow-md' : 'bg-white text-slate-600 hover:text-navy hover:bg-slate-50 border border-slate-200'}`}>
+                <button key={tab} className={`shrink-0 snap-center px-6 py-3 rounded-full text-[15px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 ${idx === 1 ? 'bg-navy text-white shadow-md hover:shadow-lg' : 'bg-white text-slate-600 hover:text-navy hover:bg-slate-50 border border-slate-200 hover:shadow-md'}`}>
                   {tab}
                 </button>
               ))}
@@ -237,7 +237,7 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="w-full bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgb(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col lg:flex-row mt-12"
+            className="w-full bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgb(0,0,0,0.05)] hover:shadow-[0_20px_60px_-15px_rgb(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col lg:flex-row mt-12"
           >
             
             {/* Left Panel: Original Dense Text */}
@@ -342,7 +342,7 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 * idx, duration: 0.5 }}
-                className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+                className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border ${card.color}`}>
                   {card.icon}
@@ -454,7 +454,13 @@ export default function Landing() {
             </div>
 
             <div className="max-w-4xl mx-auto relative">
-              <div className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-slate-100 relative text-center min-h-[350px] flex flex-col justify-center">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-slate-100 relative text-center min-h-[350px] flex flex-col justify-center"
+              >
                 <div className="flex justify-center gap-1.5 mb-8">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
@@ -472,19 +478,19 @@ export default function Landing() {
                   <h4 className="text-lg font-bold text-navy">{testimonials[currentTestimonial].name}</h4>
                   <p className="text-slate-500 text-[15px]">{testimonials[currentTestimonial].role}</p>
                 </div>
-              </div>
+              </motion.div>
               
               {/* Navigation Arrows */}
               <button 
                 onClick={prevTestimonial}
-                className="absolute top-1/2 -translate-y-1/2 -left-5 md:-left-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 transition-colors border border-slate-100 text-navy z-20"
+                className="absolute top-1/2 -translate-y-1/2 -left-5 md:-left-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 hover:scale-110 active:scale-95 transition-all duration-200 border border-slate-100 text-navy z-20"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="w-7 h-7" />
               </button>
               <button 
                 onClick={nextTestimonial}
-                className="absolute top-1/2 -translate-y-1/2 -right-5 md:-right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 transition-colors border border-slate-100 text-navy z-20"
+                className="absolute top-1/2 -translate-y-1/2 -right-5 md:-right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 hover:scale-110 active:scale-95 transition-all duration-200 border border-slate-100 text-navy z-20"
                 aria-label="Next testimonial"
               >
                 <ChevronRight className="w-7 h-7" />
@@ -536,7 +542,7 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 * (idx % 3) }}
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:border-slate-300 transition-colors"
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200"
               >
                 <button 
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
