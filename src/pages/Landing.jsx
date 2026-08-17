@@ -95,7 +95,7 @@ export default function Landing() {
                 Try it free
               </Button>
               <Link 
-                to="/demo" 
+                to="/app" 
                 className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-3 rounded-full text-[15px] font-medium shadow-sm"
               >
                 Free Assessment

@@ -47,7 +47,7 @@ export function Navbar({ isApp = false }) {
             ) : (
               <div className="hidden md:flex items-center shrink-0">
                 <Link 
-                  to="/login"
+                  to="/app"
                   className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-2 rounded-full text-[15px] font-medium"
                 >
                   Sign in
@@ -88,7 +88,7 @@ export function Navbar({ isApp = false }) {
             ))}
             <div className="pt-8 flex flex-col gap-4 w-full max-w-sm mx-auto">
               <Link 
-                to="/login" 
+                to="/app" 
                 onClick={() => setIsOpen(false)}
                 className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-4 rounded-full text-lg font-medium w-full text-center"
               >
