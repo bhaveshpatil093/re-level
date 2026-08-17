@@ -1,12 +1,39 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap, Camera, Settings, CheckCircle2 } from 'lucide-react'
+import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap, Camera, Settings, CheckCircle2, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { GradientBlob } from '../components/ui/GradientBlob'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 
+const testimonials = [
+  {
+    name: "Sarah Jenkins",
+    role: "10th Grade Student",
+    quote: "I used to spend hours re-reading my AP History textbook and still felt completely lost. Re-Level breaks down those impossible paragraphs into language I actually understand. It saved my grade!",
+    avatar: "S"
+  },
+  {
+    name: "David Chen",
+    role: "ESL Learner",
+    quote: "As someone learning English, standard translators often give me weird, literal translations that don't make sense. This tool rewrites the text so it's simple but keeps the true meaning. It is amazing.",
+    avatar: "D"
+  },
+  {
+    name: "Marcus Williams",
+    role: "College Freshman",
+    quote: "College reading assignments are incredibly dense. Being able to take a huge wall of text and get a bulleted, simplified explanation in seconds has been a total game changer for my study sessions.",
+    avatar: "M"
+  }
+];
+
 export default function Landing() {
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const nextTestimonial = () => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+  const prevTestimonial = () => setCurrentTestimonial((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+
   return (
     <div className="min-h-screen bg-[#F5F7FA] font-sans">
       <Navbar />
@@ -374,6 +401,82 @@ export default function Landing() {
                 <h3 className="text-xl font-bold text-navy mb-2 px-2">Get an explanation you actually understand</h3>
                 <p className="text-slate-500 text-[15px] px-2">Read it, hear it, or ask for it a different way.</p>
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Carousel Section */}
+        <section className="max-w-[1100px] mx-auto w-full px-4 pt-16 pb-32 relative z-10">
+          <div className="bg-gradient-to-b from-white/60 to-white/30 backdrop-blur-3xl rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white p-8 md:p-16">
+            <div className="text-center mb-12">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center justify-center bg-rose-50 text-rose-600 px-5 py-2 rounded-full font-semibold text-sm mb-6 border border-rose-100 shadow-sm"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Testimonials
+              </motion.div>
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="text-4xl md:text-5xl font-bold text-navy tracking-tight"
+              >
+                What students are saying
+              </motion.h2>
+            </div>
+
+            <div className="max-w-4xl mx-auto relative">
+              <div className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-slate-100 relative text-center min-h-[350px] flex flex-col justify-center">
+                <div className="flex justify-center gap-1.5 mb-8">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                
+                <p className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed mb-10 italic">
+                  "{testimonials[currentTestimonial].quote}"
+                </p>
+                
+                <div className="flex flex-col items-center justify-center mt-auto">
+                  <div className="w-14 h-14 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4 shadow-md border-4 border-white">
+                    {testimonials[currentTestimonial].avatar}
+                  </div>
+                  <h4 className="text-lg font-bold text-navy">{testimonials[currentTestimonial].name}</h4>
+                  <p className="text-slate-500 text-[15px]">{testimonials[currentTestimonial].role}</p>
+                </div>
+              </div>
+              
+              {/* Navigation Arrows */}
+              <button 
+                onClick={prevTestimonial}
+                className="absolute top-1/2 -translate-y-1/2 -left-5 md:-left-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 transition-colors border border-slate-100 text-navy z-20"
+                aria-label="Previous testimonial"
+              >
+                <ChevronLeft className="w-7 h-7" />
+              </button>
+              <button 
+                onClick={nextTestimonial}
+                className="absolute top-1/2 -translate-y-1/2 -right-5 md:-right-8 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-slate-50 transition-colors border border-slate-100 text-navy z-20"
+                aria-label="Next testimonial"
+              >
+                <ChevronRight className="w-7 h-7" />
+              </button>
+            </div>
+            
+            {/* Indicators */}
+            <div className="flex justify-center gap-3 mt-10">
+              {testimonials.map((_, idx) => (
+                <button 
+                  key={idx} 
+                  onClick={() => setCurrentTestimonial(idx)}
+                  className={`w-3 h-3 rounded-full transition-colors ${currentTestimonial === idx ? 'bg-navy' : 'bg-slate-300 hover:bg-slate-400'}`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
             </div>
           </div>
         </section>
