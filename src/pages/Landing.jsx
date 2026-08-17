@@ -116,8 +116,31 @@ export default function Landing() {
               </div>
             </motion.div>
           </motion.div>
-
         </div>
+
+        {/* Level Selector Strip (Decorative) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="max-w-[1100px] mx-auto w-full mt-8 bg-white rounded-[2rem] md:rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 py-3.5 px-6 md:px-10 flex flex-wrap items-center justify-center gap-4 md:gap-10 relative z-10"
+        >
+          {['Grade 6', 'Grade 8', 'Grade 10'].map(level => (
+            <span key={level} className="text-[15px] font-medium text-slate-600 hover:text-navy transition-colors whitespace-nowrap">
+              {level}
+            </span>
+          ))}
+          
+          <div className="bg-[#3B82F6] text-white px-8 py-2.5 rounded-full text-[15px] font-medium shadow-sm whitespace-nowrap">
+            Reading Levels
+          </div>
+          
+          {['ESL Beginner', 'ESL Intermediate', 'ESL Advanced'].map(level => (
+            <span key={level} className="text-[15px] font-medium text-slate-600 hover:text-navy transition-colors whitespace-nowrap">
+              {level}
+            </span>
+          ))}
+        </motion.div>
       </main>
       
       <Footer />
