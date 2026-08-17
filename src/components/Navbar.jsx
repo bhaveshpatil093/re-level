@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Sparkles } from 'lucide-react'
+import { Menu, X, Sparkles, UserCircle } from 'lucide-react'
 
-export function Navbar() {
+export function Navbar({ isApp = false }) {
   const [isOpen, setIsOpen] = useState(false)
   
   const navLinks = [
@@ -24,44 +24,56 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href}
-                className="text-[15px] font-medium text-slate-600 hover:text-navy transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-          </nav>
+          {!isApp && (
+            <nav className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <a 
+                  key={link.name} 
+                  href={link.href}
+                  className="text-[15px] font-medium text-slate-600 hover:text-navy transition-colors"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </nav>
+          )}
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center shrink-0">
-            <Link 
-              to="/login"
-              className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-2 rounded-full text-[15px] font-medium"
-            >
-              Sign in
-            </Link>
+          <div className="flex items-center shrink-0">
+            {isApp ? (
+              <button className="text-slate-500 hover:text-navy transition-colors px-2">
+                <UserCircle className="w-7 h-7" />
+              </button>
+            ) : (
+              <div className="hidden md:flex items-center shrink-0">
+                <Link 
+                  to="/login"
+                  className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-2 rounded-full text-[15px] font-medium"
+                >
+                  Sign in
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden pr-2">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-600 hover:text-navy transition-colors"
-              aria-expanded={isOpen}
-            >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+          {!isApp && (
+            <div className="flex items-center md:hidden pr-2 ml-4 border-l border-slate-100 pl-4">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-slate-600 hover:text-navy transition-colors"
+                aria-expanded={isOpen}
+              >
+                <span className="sr-only">Open main menu</span>
+                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Mobile Nav Overlay */}
-      {isOpen && (
+      {(!isApp && isOpen) && (
         <div className="fixed inset-0 z-40 bg-white/95 backdrop-blur-sm md:hidden flex flex-col pt-24 px-6">
           <div className="flex flex-col space-y-6 text-center">
             {navLinks.map((link) => (
