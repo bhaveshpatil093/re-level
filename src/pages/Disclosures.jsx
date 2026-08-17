@@ -27,9 +27,9 @@ export default function Disclosures() {
 
         <div className="space-y-8">
           
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
                 <BrainCircuit className="w-6 h-6 text-indigo-500" />
               </div>
               <h2 className="text-2xl font-bold text-navy">AI Models & APIs</h2>
@@ -53,9 +53,9 @@ export default function Disclosures() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center">
                 <ScanText className="w-6 h-6 text-teal-500" />
               </div>
               <h2 className="text-2xl font-bold text-navy">Optical Character Recognition (OCR)</h2>
@@ -75,9 +75,9 @@ export default function Disclosures() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center">
                 <Database className="w-6 h-6 text-amber-500" />
               </div>
               <h2 className="text-2xl font-bold text-navy">Training Data & Privacy</h2>

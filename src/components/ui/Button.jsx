@@ -13,8 +13,8 @@ export function Button({
   const baseStyle = "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 ease-in-out px-6 py-3 text-small tracking-wide hover:-translate-y-0.5 hover:scale-105 active:scale-95"
   
   const variants = {
-    solid: "bg-primary-600 text-white hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-600/20 border border-transparent",
-    outline: "bg-transparent text-navy border-2 border-navy hover:bg-navy/5",
+    solid: "bg-navy text-white hover:bg-slate-800 hover:shadow-lg border border-transparent shadow-sm",
+    outline: "bg-transparent text-navy border-2 border-navy hover:bg-slate-50",
   }
 
   const classes = `${baseStyle} ${variants[variant]} ${className}`
