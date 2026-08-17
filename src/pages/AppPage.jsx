@@ -134,6 +134,22 @@ export default function AppPage() {
       const response = await relevelText(inputText.trim(), selectedLang.name, gradeLevel);
       setCurrentExplanation(response);
       setAppState("result");
+      
+      // Save to history
+      const title = inputText.trim().split(' ').slice(0, 4).join(' ') + '...';
+      const snippet = response.split(' ').slice(0, 10).join(' ') + '...';
+      const newItem = {
+        id: Date.now(),
+        title,
+        snippet,
+        originalText: inputText.trim(),
+        resultText: response,
+        lang: selectedLang,
+        grade: gradeLevel,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      };
+      setHistoryItems(prev => [newItem, ...prev]);
+      
     } catch (error) {
       console.error(error);
       setAppState("error");
@@ -218,50 +234,45 @@ export default function AppPage() {
     }
   };
 
-  // History state
-  const [historyItems, setHistoryItems] = useState([
-    { 
-      id: 1, 
-      title: 'Cellular Respiration', 
-      snippet: 'Think of mitochondria as the tiny power plants inside your body\'s cells.',
-      originalText: 'The mitochondria are double-membrane-bound organelles found in most eukaryotic organisms. They generate most of the cell\'s supply of adenosine triphosphate (ATP), used as a source of chemical energy.',
-      resultText: 'Think of mitochondria as the tiny power plants inside your body\'s cells. They take in nutrients and create a special energy (called ATP) that the cell needs to work.',
-      lang: LANGUAGES.find(l => l.code === 'en'),
-      grade: 6,
-      date: '2h ago' 
-    },
-    { 
-      id: 2, 
-      title: 'Hamlet Act 1 Scene 2', 
-      snippet: 'El rey de Dinamarca habla a la corte sobre su matrimonio...',
-      originalText: 'Though yet of Hamlet our dear brother\'s death The memory be green, and that it us befitted To bear our hearts in grief and our whole kingdom To be contracted in one brow of woe...',
-      resultText: 'El rey de Dinamarca habla a la corte sobre su matrimonio con la reina. Dice que aunque todos están tristes por la muerte de su hermano (el rey anterior), la vida debe continuar y por eso se ha casado.',
-      lang: LANGUAGES.find(l => l.code === 'es'),
-      grade: 8,
-      date: 'Yesterday' 
-    },
-    { 
-      id: 3, 
-      title: 'Photosynthesis Overview', 
-      snippet: 'Les plantes utilisent la lumière du soleil pour fabriquer...',
-      originalText: 'Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy that, through cellular respiration, can later be released to fuel the organism\'s activities.',
-      resultText: 'Les plantes utilisent la lumière du soleil pour fabriquer leur propre nourriture. C\'est comme cuisiner, mais au lieu d\'un four, elles utilisent le soleil !',
-      lang: LANGUAGES.find(l => l.code === 'fr'),
-      grade: 5,
-      date: 'Oct 10' 
+  // History state mapped to localStorage
+  const [historyItems, setHistoryItems] = useState(() => {
+    const saved = localStorage.getItem('relevel_history');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [];
+      }
     }
-  ]);
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('relevel_history', JSON.stringify(historyItems));
+  }, [historyItems]);
 
   const handleLoadHistory = (item) => {
     setInputText(item.originalText);
     setUploadedImage(null);
+    const matchingLang = LANGUAGES.find(l => l.code === item.lang.code) || item.lang;
     setGradeLevel(item.grade);
-    setSelectedLang(item.lang);
+    setSelectedLang(matchingLang);
     setCurrentExplanation(item.resultText);
     setExplanationHistory([]); 
     setAppState("result");
     
     // Auto-close sidebar on mobile after selection
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
+  
+  const handleNewRelevel = () => {
+    setInputText("");
+    setUploadedImage(null);
+    setCurrentExplanation("");
+    setExplanationHistory([]);
+    setAppState("input");
     if (window.innerWidth < 768) {
       setSidebarOpen(false);
     }
@@ -293,7 +304,10 @@ export default function AppPage() {
           bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col shrink-0 h-full shadow-2xl md:shadow-none
         `}>
           <div className="p-4 flex items-center justify-between shrink-0">
-            <button className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm active:scale-95 w-full justify-center">
+            <button 
+              onClick={handleNewRelevel}
+              className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm active:scale-95 w-full justify-center"
+            >
               <Plus className="w-4 h-4" />
               New Re-Level
             </button>
