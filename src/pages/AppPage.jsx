@@ -1,13 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'de', name: 'German', flag: '🇩🇪' },
+  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
+  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
+  { code: 'pt', name: 'Portuguese', flag: '🇧🇷' },
+  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
+  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'it', name: 'Italian', flag: '🇮🇹' },
+];
 
 export default function AppPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [inputText, setInputText] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Controls state
+  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+  const [langSearch, setLangSearch] = useState("");
+  const [langOpen, setLangOpen] = useState(false);
+  const [gradeLevel, setGradeLevel] = useState(8);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setLangOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredLangs = LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase()));
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -117,6 +151,90 @@ export default function AppPage() {
                 <p className="text-slate-500 text-[15px]">
                   Drop a photo of your textbook page, upload a file, or paste your complex text below.
                 </p>
+              </div>
+              
+              {/* Controls Bar */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                
+                {/* Language Selector */}
+                <div className="relative w-full md:w-[280px] z-20" ref={dropdownRef}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Translate To</div>
+                  <button 
+                    onClick={() => setLangOpen(!langOpen)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-100 h-[50px]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{selectedLang.flag}</span>
+                      <span className="font-medium text-navy text-[15px]">{selectedLang.name}</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {langOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-30"
+                      >
+                        <div className="p-3 border-b border-slate-100 bg-slate-50/50">
+                          <div className="relative">
+                            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input 
+                              type="text" 
+                              placeholder="Search language..." 
+                              value={langSearch}
+                              onChange={(e) => setLangSearch(e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-[15px] focus:outline-none focus:border-blue-300 transition-colors shadow-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="max-h-60 overflow-y-auto p-1 no-scrollbar">
+                          {filteredLangs.length > 0 ? filteredLangs.map(lang => (
+                            <button
+                              key={lang.code}
+                              onClick={() => { setSelectedLang(lang); setLangOpen(false); setLangSearch(""); }}
+                              className={`w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 hover:bg-slate-50 transition-colors ${selectedLang.code === lang.code ? 'bg-blue-50/50 text-blue-600' : 'text-slate-600'}`}
+                            >
+                              <span className="text-xl">{lang.flag}</span>
+                              <span className="font-medium text-[15px]">{lang.name}</span>
+                            </button>
+                          )) : (
+                            <div className="p-4 text-center text-slate-500 text-[15px]">No languages found</div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Reading Level Slider */}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2 px-1">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Reading Level</div>
+                    <div className="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md">Grade {gradeLevel}</div>
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm flex items-center gap-4 h-[50px] hover:border-blue-300 transition-colors focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100">
+                    <span className="text-xs font-bold text-slate-400 shrink-0 uppercase tracking-wider">Gr. 3</span>
+                    <div className="flex-1 flex items-center">
+                      <input 
+                        type="range" 
+                        min="3" 
+                        max="12" 
+                        value={gradeLevel}
+                        onChange={(e) => setGradeLevel(parseInt(e.target.value))}
+                        className="w-full custom-slider"
+                        style={{
+                          background: `linear-gradient(to right, #3B82F6 ${(gradeLevel - 3) / 9 * 100}%, #E2E8F0 ${(gradeLevel - 3) / 9 * 100}%)`
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs font-bold text-slate-400 shrink-0 uppercase tracking-wider">Gr. 12</span>
+                  </div>
+                </div>
+
               </div>
               
               <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 p-2 overflow-hidden flex flex-col focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300">
