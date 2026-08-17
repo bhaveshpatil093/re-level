@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
 import { relevelText } from '../lib/api';
+import Tesseract from 'tesseract.js';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,6 +29,10 @@ export default function AppPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
   
+  // OCR states
+  const [isExtractingText, setIsExtractingText] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
+  
   // Controls state
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
   const [langSearch, setLangSearch] = useState("");
@@ -50,13 +55,11 @@ export default function AppPage() {
   const [playbackProgress, setPlaybackProgress] = useState(0);
 
   const handleRelevel = async () => {
-    if (!inputText.trim() && !uploadedImage) return;
+    if (!inputText.trim()) return;
     setAppState("loading");
     
-    const textToProcess = inputText.trim() || "OCR not fully implemented. Please imagine text from the image here.";
-    
     try {
-      const response = await relevelText(textToProcess, selectedLang.name, gradeLevel);
+      const response = await relevelText(inputText.trim(), selectedLang.name, gradeLevel);
       setCurrentExplanation(response);
       setAppState("result");
     } catch (error) {
@@ -69,15 +72,12 @@ export default function AppPage() {
     setIsRegenerating(true);
     setExplanationHistory(prev => [currentExplanation, ...prev]);
     
-    const textToProcess = inputText.trim() || "OCR not fully implemented. Please imagine text from the image here.";
-    
     try {
-      const response = await relevelText(textToProcess, selectedLang.name, gradeLevel, "explain_differently");
+      const response = await relevelText(inputText.trim(), selectedLang.name, gradeLevel, "explain_differently");
       setCurrentExplanation(response);
     } catch (error) {
       console.error(error);
-      // In a real app we might show a toast, but for now we just revert state
-      setExplanationHistory(prev => prev.slice(1)); // Remove the last pushed history
+      setExplanationHistory(prev => prev.slice(1)); 
     } finally {
       setIsRegenerating(false);
     }
@@ -112,6 +112,29 @@ export default function AppPage() {
 
   const filteredLangs = LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase()));
 
+  const processImageOCR = async (file) => {
+    setIsExtractingText(true);
+    setOcrProgress(0);
+    try {
+      const result = await Tesseract.recognize(
+        file,
+        'eng',
+        { logger: m => {
+          if (m.status === 'recognizing text') {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        }}
+      );
+      setInputText(result.data.text);
+    } catch (error) {
+      console.error("OCR Error:", error);
+      setInputText("Failed to extract text from image. Please type manually.");
+    } finally {
+      setIsExtractingText(false);
+      setOcrProgress(0);
+    }
+  };
+
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -125,13 +148,17 @@ export default function AppPage() {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setUploadedImage(URL.createObjectURL(e.dataTransfer.files[0]));
+      const file = e.dataTransfer.files[0];
+      setUploadedImage(URL.createObjectURL(file));
+      processImageOCR(file);
     }
   };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setUploadedImage(URL.createObjectURL(e.target.files[0]));
+      const file = e.target.files[0];
+      setUploadedImage(URL.createObjectURL(file));
+      processImageOCR(file);
     }
   };
 
@@ -407,21 +434,33 @@ export default function AppPage() {
                   </div>
                 ) : (
                   <div className="m-2 p-4 bg-slate-50 rounded-[1.5rem] border border-slate-100 flex items-start gap-4 relative">
-                    <div className="w-24 h-24 bg-slate-200 rounded-xl overflow-hidden shrink-0 border border-slate-200 shadow-sm">
-                      <img src={uploadedImage} alt="Uploaded text" className="w-full h-full object-cover" />
+                    <div className="w-24 h-24 bg-slate-200 rounded-xl overflow-hidden shrink-0 border border-slate-200 shadow-sm relative">
+                      <img src={uploadedImage} alt="Uploaded text" className={`w-full h-full object-cover transition-all ${isExtractingText ? 'opacity-50 blur-sm' : ''}`} />
+                      {isExtractingText && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                           <RefreshCw className="w-6 h-6 text-blue-500 animate-spin mb-1" />
+                           <span className="text-[10px] font-bold text-blue-600">{ocrProgress}%</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 pt-2 pr-10">
                       <h4 className="font-semibold text-navy text-[15px] flex items-center gap-2">
                         <ImageIcon className="w-4 h-4 text-slate-400" /> Image uploaded successfully
                       </h4>
-                      <p className="text-slate-500 text-sm mt-1">We'll extract the text from this image when you click Re-Level.</p>
+                      {isExtractingText ? (
+                        <p className="text-blue-500 font-medium text-sm mt-1 animate-pulse">Extracting text... please wait.</p>
+                      ) : (
+                        <p className="text-slate-500 text-sm mt-1">We've extracted the text! Please review and edit it below before clicking Re-Level.</p>
+                      )}
                     </div>
-                    <button 
-                      onClick={() => setUploadedImage(null)}
-                      className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-rose-500 rounded-full shadow-sm border border-slate-100 hover:bg-rose-50 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    {!isExtractingText && (
+                      <button 
+                        onClick={() => { setUploadedImage(null); setInputText(""); }}
+                        className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-rose-500 rounded-full shadow-sm border border-slate-100 hover:bg-rose-50 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )}
                 
@@ -430,7 +469,8 @@ export default function AppPage() {
                   <textarea 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    className="w-full min-h-[160px] resize-none bg-transparent outline-none text-slate-700 placeholder-slate-400 text-[15px] leading-relaxed"
+                    disabled={isExtractingText}
+                    className="w-full min-h-[160px] resize-none bg-transparent outline-none text-slate-700 placeholder-slate-400 text-[15px] leading-relaxed disabled:opacity-50"
                     placeholder="...or paste your difficult text here directly."
                   ></textarea>
                 </div>
@@ -442,7 +482,7 @@ export default function AppPage() {
                   </div>
                   <button 
                     onClick={handleRelevel}
-                    disabled={!inputText.trim() && !uploadedImage}
+                    disabled={!inputText.trim() || isExtractingText}
                     className="bg-navy text-white px-8 py-3 rounded-full font-bold text-[15px] hover:bg-blue-600 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
                     <Sparkles className="w-4 h-4 text-blue-300" />
