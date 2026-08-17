@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw } from 'lucide-react';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LANGUAGES = [
@@ -39,6 +39,11 @@ export default function AppPage() {
   const [currentExplanation, setCurrentExplanation] = useState(
     "This is your highly simplified, re-leveled output text. It has been perfectly adjusted to your selected reading level.\n\nNotice how the complex vocabulary and convoluted sentence structures have been carefully unwrapped into clear, direct statements.\n\nYou can click anywhere in this card to edit the text manually if you want to make further tweaks before saving it to your history or exporting it."
   );
+  
+  // Audio playback state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [playbackProgress, setPlaybackProgress] = useState(0);
 
   const handleRelevel = () => {
     if (!inputText.trim() && !uploadedImage) return;
@@ -71,6 +76,23 @@ export default function AppPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Simulate audio playback progress
+  useEffect(() => {
+    let interval;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setPlaybackProgress(prev => {
+          if (prev >= 100) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + (5 * playbackSpeed);
+        });
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, playbackSpeed]);
 
   const filteredLangs = LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase()));
 
@@ -396,20 +418,59 @@ export default function AppPage() {
                           <div className="h-5 bg-slate-200 rounded-full w-2/3 mt-6"></div>
                         </div>
                       ) : (
-                        <AnimatePresence mode="wait">
-                          <motion.div 
-                            key={currentExplanation}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="font-sans text-[17px] text-slate-700 leading-loose outline-none whitespace-pre-wrap" 
-                            contentEditable 
-                            suppressContentEditableWarning
-                          >
-                            {currentExplanation}
-                          </motion.div>
-                        </AnimatePresence>
+                        <div className="flex flex-col h-full min-h-[350px]">
+                          <AnimatePresence mode="wait">
+                            <motion.div 
+                              key={currentExplanation}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="font-sans text-[17px] text-slate-700 leading-loose outline-none whitespace-pre-wrap flex-1 mb-6" 
+                              contentEditable 
+                              suppressContentEditableWarning
+                            >
+                              {currentExplanation}
+                            </motion.div>
+                          </AnimatePresence>
+
+                          {/* TTS Controls */}
+                          <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col gap-4">
+                            {/* Progress bar */}
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <motion.div 
+                                className="h-full bg-teal-500 rounded-full"
+                                animate={{ width: `${playbackProgress}%` }}
+                                transition={{ duration: 0.5, ease: "linear" }}
+                              />
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <button 
+                                onClick={() => {
+                                  setIsPlaying(!isPlaying);
+                                  if (playbackProgress >= 100) setPlaybackProgress(0);
+                                }}
+                                className="w-11 h-11 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center hover:bg-teal-100 transition-colors shadow-sm active:scale-95"
+                                aria-label={isPlaying ? "Pause" : "Play"}
+                              >
+                                {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
+                              </button>
+                              
+                              <div className="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-200">
+                                {[0.75, 1, 1.25].map(speed => (
+                                  <button
+                                    key={speed}
+                                    onClick={() => setPlaybackSpeed(speed)}
+                                    className={`px-3 py-1.5 rounded-md text-[13px] font-bold transition-all ${playbackSpeed === speed ? 'bg-white text-navy shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                  >
+                                    {speed}x
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </div>
                     
