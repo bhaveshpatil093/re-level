@@ -1,10 +1,36 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut } from 'lucide-react';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AppPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [inputText, setInputText] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+  
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setUploadedImage(URL.createObjectURL(e.dataTransfer.files[0]));
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadedImage(URL.createObjectURL(e.target.files[0]));
+    }
+  };
 
   // Mock history data
   const history = [
@@ -84,30 +110,75 @@ export default function AppPage() {
           </div>
           
           {/* Workspace Area */}
-          <div className="flex-1 bg-slate-50/50 p-6 lg:p-10 overflow-y-auto flex items-center justify-center">
-            <div className="text-center max-w-md w-full">
-              <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-blue-100">
-                <FileText className="w-8 h-8" />
+          <div className="flex-1 bg-slate-50/50 p-6 lg:p-10 overflow-y-auto">
+            <div className="max-w-3xl mx-auto w-full pt-8 lg:pt-12 pb-20">
+              <div className="mb-8 text-center md:text-left">
+                <h3 className="text-3xl font-bold text-navy mb-3">What are we learning today?</h3>
+                <p className="text-slate-500 text-[15px]">
+                  Drop a photo of your textbook page, upload a file, or paste your complex text below.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-navy mb-3">Start a new Re-Level</h3>
-              <p className="text-slate-500 mb-8 leading-relaxed text-[15px]">
-                Paste any complex text, upload a document, or snap a photo of your textbook to get started.
-              </p>
               
-              <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-2 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-200 hover:shadow-md">
-                <textarea 
-                  className="w-full h-32 resize-none bg-transparent outline-none p-4 text-slate-700 placeholder-slate-400 text-[15px]"
-                  placeholder="Paste your difficult text here..."
-                ></textarea>
-                <div className="flex justify-between items-center px-2 pb-2">
-                  <button className="text-slate-400 hover:text-navy px-3 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-slate-50">
-                    Upload File
-                  </button>
-                  <button className="bg-navy text-white px-6 py-2.5 rounded-xl font-medium text-[15px] hover:bg-slate-800 transition-colors shadow-sm hover:shadow active:scale-95 duration-200">
-                    Re-Level Text
+              <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 p-2 overflow-hidden flex flex-col focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300">
+                
+                {/* Drag & Drop Zone */}
+                {!uploadedImage ? (
+                  <div 
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`m-2 border-2 border-dashed rounded-[1.5rem] p-8 text-center transition-colors flex flex-col items-center justify-center cursor-pointer ${isDragging ? 'border-blue-500 bg-blue-50/50' : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300 bg-slate-50/30'}`}
+                    onClick={() => document.getElementById('file-upload').click()}
+                  >
+                    <input type="file" id="file-upload" className="hidden" accept="image/*" onChange={handleFileChange} />
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-4 text-blue-500">
+                      <UploadCloud className="w-5 h-5" />
+                    </div>
+                    <p className="font-semibold text-navy text-[15px]">Drop a photo of your textbook page</p>
+                    <p className="text-slate-400 text-sm mt-1">or click to browse</p>
+                  </div>
+                ) : (
+                  <div className="m-2 p-4 bg-slate-50 rounded-[1.5rem] border border-slate-100 flex items-start gap-4 relative">
+                    <div className="w-24 h-24 bg-slate-200 rounded-xl overflow-hidden shrink-0 border border-slate-200 shadow-sm">
+                      <img src={uploadedImage} alt="Uploaded text" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 pt-2 pr-10">
+                      <h4 className="font-semibold text-navy text-[15px] flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-slate-400" /> Image uploaded successfully
+                      </h4>
+                      <p className="text-slate-500 text-sm mt-1">We'll extract the text from this image when you click Re-Level.</p>
+                    </div>
+                    <button 
+                      onClick={() => setUploadedImage(null)}
+                      className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-rose-500 rounded-full shadow-sm border border-slate-100 hover:bg-rose-50 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                
+                {/* Textarea */}
+                <div className="p-4 flex-1">
+                  <textarea 
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    className="w-full min-h-[160px] resize-none bg-transparent outline-none text-slate-700 placeholder-slate-400 text-[15px] leading-relaxed"
+                    placeholder="...or paste your difficult text here directly."
+                  ></textarea>
+                </div>
+                
+                {/* Footer Toolbar */}
+                <div className="flex justify-between items-center px-4 pb-4 pt-2 border-t border-slate-100 mt-2">
+                  <div className="text-xs text-slate-400 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                    {inputText.length} characters
+                  </div>
+                  <button className="bg-navy text-white px-8 py-3 rounded-full font-bold text-[15px] hover:bg-blue-600 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-blue-300" />
+                    Re-Level this
                   </button>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
