@@ -9,25 +9,24 @@ const API_KEY = import.meta.env.VITE_LLM_API_KEY;
 const BASE_URL = import.meta.env.VITE_LLM_BASE_URL || 'https://api.featherless.ai/v1';
 
 /**
- * Main function to request a re-leveled explanation from the LLM.
+ * Core function to translate and re-level text.
  * 
- * @param {string} originalText - The text to be re-leveled.
- * @param {string} language - The target language (e.g., "Spanish").
- * @param {number} gradeLevel - The target reading level grade (3-12).
+ * @param {string} text - The original text passage.
+ * @param {string} targetLanguage - The target language (e.g., "Spanish").
+ * @param {number|string} gradeLevel - The target reading level grade (3-12).
  * @param {string} mode - "relevel" or "explain_differently"
- * @returns {Promise<string>} The generated text.
+ * @returns {Promise<string>} The generated clean text.
  */
-export async function generateRelevel(originalText, language, gradeLevel, mode = "relevel") {
+export async function relevelText(text, targetLanguage, gradeLevel, mode = "relevel") {
   if (!API_KEY) {
     throw new Error("API Key is not configured. Please check your .env file.");
   }
 
-  // Define prompts based on mode
-  let systemPrompt = `You are an expert reading intervention specialist.`;
-  let userPrompt = `Re-level this text to a Grade ${gradeLevel} reading level and translate it to ${language}.\n\nText: ${originalText}`;
-
+  // Carefully engineered system prompt requested by the spec
+  let systemPrompt = `You are an expert bilingual teacher. Translate the following text into ${targetLanguage}, and rewrite it so a ${gradeLevel} reading-level student can fully understand it. Preserve all facts and meaning. Do not add information that isn't in the original. Keep sentences short. Explain any necessary technical terms in simple language. Return ONLY the clean translated and simplified text. Do not include markdown formatting or conversational filler.`;
+  
   if (mode === "explain_differently") {
-    userPrompt = `Please explain the following text in a completely different way, using a new analogy. Target a Grade ${gradeLevel} reading level in ${language}.\n\nText: ${originalText}`;
+    systemPrompt = `You are an expert bilingual teacher. The student needs a different explanation. Translate the following text into ${targetLanguage}, and rewrite it so a ${gradeLevel} reading-level student can fully understand it. You MUST use a completely NEW analogy or framing that wasn't used previously. Preserve all facts. Keep sentences short. Return ONLY the clean text, no markdown formatting.`;
   }
 
   try {
@@ -41,21 +40,21 @@ export async function generateRelevel(originalText, language, gradeLevel, mode =
         model: 'featherless-model', // Swappable model name
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: text }
         ],
         temperature: 0.7,
       })
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
       throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    return data.choices[0].message.content.trim();
   } catch (error) {
-    console.error("Error in generateRelevel:", error);
+    console.error("Error in relevelText:", error);
     throw error;
   }
 }
