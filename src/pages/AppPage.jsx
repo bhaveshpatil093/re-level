@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle } from 'lucide-react';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LANGUAGES = [
@@ -21,7 +21,7 @@ const LANGUAGES = [
 
 export default function AppPage() {
   // Core states
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [inputText, setInputText] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -178,114 +178,101 @@ export default function AppPage() {
   return (
     <div className="min-h-screen bg-[#F5F7FA] font-sans flex flex-col h-screen overflow-hidden">
       <Navbar isApp={true} />
-
-      {/* Main Layout Area */}
-      <div className="flex flex-1 pt-24 pb-6 px-4 gap-6 max-w-[1400px] mx-auto w-full h-full box-border relative z-0">
+      
+      <div className="flex flex-1 overflow-hidden relative">
         
+        {/* Mobile Sidebar Overlay */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm z-30 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+
         {/* Sidebar */}
-        <motion.div 
-          initial={false}
-          animate={{ width: sidebarOpen ? 280 : 0, opacity: sidebarOpen ? 1 : 0 }}
-          className="bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col shrink-0 relative h-full hidden md:flex overflow-hidden"
-        >
-          <div className="p-6 flex flex-col h-full w-[280px]">
-            <button className="flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors rounded-xl px-4 py-3 font-semibold text-sm mb-8 w-full justify-center border border-blue-100 hover:scale-105 active:scale-95 duration-200">
+        <div className={`
+          absolute md:relative z-40 inset-y-0 left-0
+          ${sidebarOpen ? 'translate-x-0 w-[280px] md:w-64' : '-translate-x-full w-[280px] md:translate-x-0 md:w-0'}
+          bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col shrink-0 h-full shadow-2xl md:shadow-none
+        `}>
+          <div className="p-4 flex items-center justify-between shrink-0">
+            <button className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm active:scale-95 w-full justify-center">
               <Plus className="w-4 h-4" />
               New Re-Level
             </button>
-            
-            <div className="flex items-center gap-2 text-slate-400 font-semibold text-xs uppercase tracking-wider mb-4 px-2">
-              <History className="w-4 h-4" />
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden ml-2 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="flex-1 flex flex-col overflow-hidden px-4 pb-4">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 pl-1">
               Recent History
             </div>
             
-            <div className="flex-1 overflow-y-auto space-y-3 no-scrollbar px-2 -mx-2">
+            <div className="flex-1 overflow-y-auto space-y-2 no-scrollbar">
               {historyItems.map((item) => (
                 <div 
                   key={item.id} 
                   onClick={() => handleLoadHistory(item)}
-                  className="relative group w-full text-left p-3 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 cursor-pointer shadow-sm hover:shadow"
+                  className="relative group w-full text-left p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 cursor-pointer shadow-sm hover:shadow"
                 >
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-bold text-navy text-sm truncate pr-6 group-hover:text-blue-600 transition-colors">{item.title}</span>
                     <span className="text-[11px] font-semibold text-slate-400 shrink-0 mt-0.5">{item.date}</span>
                   </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-2.5 leading-relaxed">
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-2 leading-relaxed">
                     {item.snippet}
                   </p>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 uppercase">Gr {item.grade}</span>
                     <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 uppercase flex items-center gap-1">{item.lang.flag} {item.lang.code}</span>
                   </div>
-                  
-                  {/* Delete button */}
-                  <button 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      setHistoryItems(prev => prev.filter(i => i.id !== item.id)); 
-                    }}
-                    className="absolute top-2 right-2 w-7 h-7 bg-white border border-slate-200 rounded-lg text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"
-                    aria-label="Delete history item"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
                 </div>
               ))}
-              
-              {historyItems.length === 0 && (
-                <div className="text-center p-6 flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 rounded-2xl mx-1 mt-4">
-                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
-                    <FileText className="w-5 h-5 text-slate-400" />
-                  </div>
-                  <p className="text-sm font-semibold text-slate-600 mb-1">No history yet</p>
-                  <p className="text-[11px] text-slate-400 text-center leading-relaxed px-2">Your past explanations and translations will automatically save here.</p>
-                </div>
-              )}
             </div>
             
-            <div className="mt-auto pt-6 border-t border-slate-100 space-y-2">
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-navy transition-colors font-medium text-sm">
-                <Settings className="w-4 h-4" /> Settings
+            <div className="mt-auto pt-6 border-t border-slate-100 space-y-2 shrink-0">
+              <button className="flex items-center gap-3 w-full p-2 text-sm font-medium text-slate-600 hover:text-navy hover:bg-slate-50 rounded-lg transition-colors">
+                <Settings className="w-4 h-4 text-slate-400" />
+                Settings
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition-colors font-medium text-sm">
-                <LogOut className="w-4 h-4" /> Sign out
+              <button className="flex items-center gap-3 w-full p-2 text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-500" />
+                Sign out
               </button>
             </div>
           </div>
-        </motion.div>
-
-        {/* Sidebar Toggle for Desktop */}
-        <div className="hidden md:flex items-center h-full relative -ml-3 z-10">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-6 h-12 bg-white border border-slate-200 rounded-r-xl shadow-sm flex items-center justify-center hover:bg-slate-50 text-slate-400 hover:text-navy transition-colors"
-          >
-            {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </button>
         </div>
-        
+
         {/* Main Content Area */}
-        <div className="flex-1 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden relative h-full">
-          {/* Header */}
-          <div className="h-16 border-b border-slate-100 flex items-center px-6 shrink-0 bg-white/50 backdrop-blur-sm z-10 justify-between">
-            <h2 className="font-semibold text-navy flex items-center gap-2">
-              <FileText className="w-4 h-4 text-slate-400" />
-              New Workspace
-            </h2>
-            
-            <button 
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden text-slate-500 hover:text-navy hover:bg-slate-100 bg-slate-50 p-2 rounded-lg border border-slate-200 transition-colors"
-            >
-              <History className="w-5 h-5" />
-            </button>
+        <div className="flex-1 bg-slate-50/50 flex flex-col relative h-full overflow-hidden">
+          
+          {/* Mobile Header */}
+          <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 bg-white shrink-0 shadow-sm z-10">
+             <button 
+               onClick={() => setSidebarOpen(true)} 
+               className="p-2 -ml-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+               aria-label="Open sidebar"
+             >
+                <Menu className="w-6 h-6" />
+             </button>
+             <span className="font-bold text-navy text-[15px]">Workspace</span>
+             <div className="w-6"></div> {/* Spacer for centering */}
           </div>
           
-          {/* Workspace Area */}
-          <div className="flex-1 bg-slate-50/50 p-6 lg:p-10 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 no-scrollbar">
             
             {appState === "input" && (
-              <div className="max-w-3xl mx-auto w-full pt-8 lg:pt-12 pb-20">
+              <div className="max-w-3xl mx-auto w-full pt-4 md:pt-8 lg:pt-12 pb-20">
                 
               {historyItems.length === 0 && (
                 <div className="mb-10 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-[2.5rem] border border-blue-100/50 shadow-sm relative overflow-hidden">
