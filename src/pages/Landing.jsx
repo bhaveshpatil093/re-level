@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Languages, Volume2 } from 'lucide-react'
+import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { GradientBlob } from '../components/ui/GradientBlob'
@@ -233,6 +233,74 @@ export default function Landing() {
             </div>
 
           </motion.div>
+        </section>
+
+        {/* Who We Help Section */}
+        <section className="max-w-[1100px] mx-auto w-full px-4 pt-24 pb-32 relative z-10">
+          <div className="text-center mb-16">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center justify-center bg-blue-50 text-blue-600 px-5 py-2 rounded-full font-semibold text-sm mb-6 border border-blue-100 shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              For every learner
+            </motion.div>
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-bold text-navy mb-6 tracking-tight"
+            >
+              Who Re-Level is for
+            </motion.h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                title: 'ESL Students',
+                desc: 'Move past literal, dense translations. Get content delivered in simplified English that helps you learn naturally without losing the context.',
+                icon: <Languages className="w-6 h-6 text-indigo-500" />,
+                color: 'bg-indigo-50 border-indigo-100',
+              },
+              {
+                title: 'Reading-Level Gaps',
+                desc: 'Keep up in mainstream classrooms. Adjust any complex textbook passage or worksheet down to a reading level that you are comfortable with.',
+                icon: <BookOpen className="w-6 h-6 text-teal-500" />,
+                color: 'bg-teal-50 border-teal-100',
+              },
+              {
+                title: 'Focus & Attention',
+                desc: 'Break down overwhelming walls of text. Get information re-explained in shorter, punchy chunks that are much easier to process and digest.',
+                icon: <Brain className="w-6 h-6 text-amber-500" />,
+                color: 'bg-amber-50 border-amber-100',
+              },
+              {
+                title: 'Home & Self-Learners',
+                desc: 'Learn independently without waiting for a tutor. Instantly clarify concepts you are stuck on, as if a teacher is sitting right next to you.',
+                icon: <GraduationCap className="w-6 h-6 text-rose-500" />,
+                color: 'bg-rose-50 border-rose-100',
+              }
+            ].map((card, idx) => (
+              <motion.div 
+                key={card.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 * idx, duration: 0.5 }}
+                className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border ${card.color}`}>
+                  {card.icon}
+                </div>
+                <h3 className="text-xl font-bold text-navy mb-3">{card.title}</h3>
+                <p className="text-slate-500 leading-relaxed text-[15px]">{card.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </section>
       </main>
       
