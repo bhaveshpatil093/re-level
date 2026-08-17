@@ -1,39 +1,35 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X, Sparkles } from 'lucide-react'
-import { Button } from './ui/Button'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   
   const navLinks = [
-    { name: 'Product', href: '#product' },
-    { name: 'How it works', href: '#how-it-works' },
     { name: 'Pricing', href: '#pricing' },
     { name: 'FAQ', href: '#faq' },
+    { name: 'Contact us', href: '#contact' },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <>
+      <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] md:w-max">
+        <div className="bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 px-4 py-2.5 flex items-center justify-between md:gap-12">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="p-1.5 bg-primary-600 rounded-lg group-hover:bg-primary-700 transition-colors shadow-sm">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-bold text-xl text-navy tracking-tight">Re-Level</span>
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center gap-2 group shrink-0 pl-2">
+            <div className="text-primary-500 transition-colors">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <span className="font-semibold text-lg text-navy tracking-tight">re-level</span>
+          </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
                 href={link.href}
-                className="text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors"
+                className="text-[15px] font-medium text-slate-600 hover:text-navy transition-colors"
               >
                 {link.name}
               </a>
@@ -41,46 +37,55 @@ export function Navbar() {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" href="/login" className="!py-2 !px-4">Sign in</Button>
-            <Button variant="solid" href="/app" className="!py-2 !px-4">Get started</Button>
+          <div className="hidden md:flex items-center shrink-0">
+            <Link 
+              to="/login"
+              className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-2 rounded-full text-[15px] font-medium"
+            >
+              Sign in
+            </Link>
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center md:hidden pr-2">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-600 hover:text-navy p-2 rounded-md transition-colors"
+              className="text-slate-600 hover:text-navy transition-colors"
               aria-expanded={isOpen}
             >
               <span className="sr-only">Open main menu</span>
-              {isOpen ? <X className="block w-6 h-6" /> : <Menu className="block w-6 h-6" />}
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Nav */}
+      {/* Mobile Nav Overlay */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg">
-          <div className="px-4 pt-2 pb-6 space-y-1 sm:px-3">
+        <div className="fixed inset-0 z-40 bg-white/95 backdrop-blur-sm md:hidden flex flex-col pt-24 px-6">
+          <div className="flex flex-col space-y-6 text-center">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-primary-600 hover:bg-slate-50 transition-colors"
+                className="text-2xl font-medium text-navy hover:text-primary-600 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 {link.name}
               </a>
             ))}
-            <div className="pt-4 flex flex-col gap-3 px-3">
-              <Button variant="outline" href="/login" className="w-full justify-center">Sign in</Button>
-              <Button variant="solid" href="/app" className="w-full justify-center">Get started</Button>
+            <div className="pt-8 flex flex-col gap-4 w-full max-w-sm mx-auto">
+              <Link 
+                to="/login" 
+                onClick={() => setIsOpen(false)}
+                className="bg-navy text-white hover:bg-slate-800 transition-colors px-6 py-4 rounded-full text-lg font-medium w-full text-center"
+              >
+                Sign in
+              </Link>
             </div>
           </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
