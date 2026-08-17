@@ -1,12 +1,11 @@
 /**
  * Centralized API configuration for Re-Level.
- * Handles LLM interaction (e.g., Featherless AI, OpenAI) and keeps the provider swappable.
+ * Handles LLM interaction via the Featherless AI wrapper.
  */
+import { callFeatherlessModel } from './featherless';
 
-// We use Vite's import.meta.env to access environment variables.
-const API_KEY = import.meta.env.VITE_LLM_API_KEY;
-// Default to Featherless AI base URL if not explicitly provided
-const BASE_URL = import.meta.env.VITE_LLM_BASE_URL || 'https://api.featherless.ai/v1';
+// We use the robust Llama-3 model available on Featherless
+const DEFAULT_MODEL = 'meta-llama/Meta-Llama-3-8B-Instruct';
 
 /**
  * Core function to translate and re-level text.
@@ -17,42 +16,12 @@ const BASE_URL = import.meta.env.VITE_LLM_BASE_URL || 'https://api.featherless.a
  * @returns {Promise<string>} The generated clean text.
  */
 export async function relevelText(text, targetLanguage, gradeLevel) {
-  if (!API_KEY) {
-    throw new Error("API Key is not configured. Please check your .env file.");
-  }
-
-  // Carefully engineered system prompt requested by the spec
   const systemPrompt = `You are an expert bilingual teacher. Translate the following text into ${targetLanguage}, and rewrite it so a ${gradeLevel} reading-level student can fully understand it. Preserve all facts and meaning. Do not add information that isn't in the original. Keep sentences short. Explain any necessary technical terms in simple language. Return ONLY the clean translated and simplified text. Do not include markdown formatting or conversational filler.`;
 
-  try {
-    const response = await fetch(`${BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'featherless-model', // Swappable model name
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: text }
-        ],
-        temperature: 0.7,
-        max_tokens: 800,
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content.trim();
-  } catch (error) {
-    console.error("Error in relevelText:", error);
-    throw error;
-  }
+  return await callFeatherlessModel(DEFAULT_MODEL, systemPrompt, text, {
+    temperature: 0.7,
+    max_tokens: 800
+  });
 }
 
 /**
@@ -65,10 +34,6 @@ export async function relevelText(text, targetLanguage, gradeLevel) {
  * @returns {Promise<string>} The generated clean text.
  */
 export async function reexplainText(text, targetLanguage, gradeLevel, previousExplanations = []) {
-  if (!API_KEY) {
-    throw new Error("API Key is not configured. Please check your .env file.");
-  }
-
   const historyText = previousExplanations.map((exp, i) => `Previous Explanation ${i + 1}:\n${exp}`).join("\n\n");
 
   const systemPrompt = `You are an expert bilingual teacher. The student did not fully understand the previous explanations. 
@@ -81,33 +46,8 @@ CRITICAL RULES:
 
   const userPrompt = `Original Text:\n${text}\n\n${historyText ? `--- Previously Given Explanations (DO NOT USE THESE ANALOGIES) ---\n${historyText}` : ""}`;
 
-  try {
-    const response = await fetch(`${BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'featherless-model',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.8, // Slightly higher temp for more creative analogies
-        max_tokens: 800,
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content.trim();
-  } catch (error) {
-    console.error("Error in reexplainText:", error);
-    throw error;
-  }
+  return await callFeatherlessModel(DEFAULT_MODEL, systemPrompt, userPrompt, {
+    temperature: 0.8,
+    max_tokens: 800
+  });
 }
