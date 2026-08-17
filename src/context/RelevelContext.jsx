@@ -31,6 +31,7 @@ export function RelevelProvider({ children }) {
   const [gradeLevel, setGradeLevel] = useState(6);
   
   const [currentExplanation, setCurrentExplanation] = useState("");
+  const [currentModel, setCurrentModel] = useState("");
   const [explanationHistory, setExplanationHistory] = useState([]);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -73,20 +74,22 @@ export function RelevelProvider({ children }) {
     setAppState("loading");
     
     try {
-      const response = await relevelText(text, selectedLang.name, gradeLevel);
-      setCurrentExplanation(response);
+      const { text, model } = await relevelText(text, selectedLang.name, gradeLevel);
+      setCurrentExplanation(text);
+      setCurrentModel(model);
       setAppState("result");
       
       const title = text.split(' ').slice(0, 4).join(' ') + '...';
-      const snippet = response.split(' ').slice(0, 10).join(' ') + '...';
+      const snippet = text.split(' ').slice(0, 10).join(' ') + '...';
       const newItem = {
         id: Date.now(),
         title,
         snippet,
         originalText: text,
-        resultText: response,
+        resultText: text,
         lang: selectedLang,
         grade: gradeLevel,
+        modelUsed: model,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       };
       setHistoryItems(prev => [newItem, ...prev]);
@@ -99,13 +102,29 @@ export function RelevelProvider({ children }) {
   
   const handleExplainDifferently = async () => {
     setIsRegenerating(true);
-    const historyToPass = [currentExplanation, ...explanationHistory];
+    const historyToPass = [{ text: currentExplanation, model: currentModel }, ...explanationHistory];
     setExplanationHistory(historyToPass);
     
     try {
-      const response = await reexplainText(inputText.trim(), selectedLang.name, gradeLevel, historyToPass);
-      setCurrentExplanation(response);
+      const attemptCount = historyToPass.length;
+      const { text, model } = await reexplainText(inputText.trim(), selectedLang.name, gradeLevel, historyToPass, attemptCount);
+      setCurrentExplanation(text);
+      setCurrentModel(model);
       window.speechSynthesis.cancel();
+      
+      // Update the most recent history item to reflect the new explanation
+      setHistoryItems(prev => {
+        if (prev.length === 0) return prev;
+        const newItems = [...prev];
+        newItems[0] = {
+          ...newItems[0],
+          resultText: text,
+          modelUsed: model,
+          snippet: text.split(' ').slice(0, 10).join(' ') + '...'
+        };
+        return newItems;
+      });
+      
     } catch (error) {
       console.error(error);
       setExplanationHistory(prev => prev.slice(1)); 
@@ -121,6 +140,7 @@ export function RelevelProvider({ children }) {
     setGradeLevel(item.grade);
     setSelectedLang(matchingLang);
     setCurrentExplanation(item.resultText);
+    setCurrentModel(item.modelUsed || "meta-llama/Meta-Llama-3-8B-Instruct");
     setExplanationHistory([]); 
     setAppState("result");
   };
@@ -130,6 +150,7 @@ export function RelevelProvider({ children }) {
     setInputError("");
     setUploadedImage(null);
     setCurrentExplanation("");
+    setCurrentModel("");
     setExplanationHistory([]);
     setAppState("input");
   };
@@ -182,6 +203,7 @@ export function RelevelProvider({ children }) {
       selectedLang, setSelectedLang,
       gradeLevel, setGradeLevel,
       currentExplanation, setCurrentExplanation,
+      currentModel, setCurrentModel,
       explanationHistory, setExplanationHistory,
       isRegenerating, setIsRegenerating,
       historyItems, setHistoryItems,

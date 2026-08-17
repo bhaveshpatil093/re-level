@@ -32,6 +32,7 @@ function AppPageContent() {
     selectedLang, setSelectedLang,
     gradeLevel, setGradeLevel,
     currentExplanation,
+    currentModel,
     explanationHistory,
     isRegenerating,
     historyItems,
@@ -550,6 +551,9 @@ function AppPageContent() {
                          <Sparkles className="w-4 h-4" /> Re-Leveled Result
                        </div>
                        <div className="flex items-center gap-2">
+                         <span className="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md border border-indigo-100 truncate max-w-[120px]" title={currentModel}>
+                           {currentModel ? currentModel.split('/').pop() : 'Llama-3-8B'}
+                         </span>
                          <span className="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-md border border-blue-100">
                            Grade {gradeLevel}
                          </span>
@@ -667,8 +671,11 @@ function AppPageContent() {
                                   <div className="p-4 pt-0 border-t border-slate-200 flex flex-col gap-4 mt-2 max-h-[300px] overflow-y-auto no-scrollbar">
                                     {explanationHistory.map((hist, idx) => (
                                       <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-[15px] text-slate-600 leading-relaxed whitespace-pre-wrap">
-                                        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Version {explanationHistory.length - idx}</div>
-                                        {hist}
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Version {explanationHistory.length - idx}</div>
+                                          <div className="text-[10px] font-bold text-indigo-400 bg-indigo-50/50 px-1.5 py-0.5 rounded border border-indigo-100">{hist.model ? hist.model.split('/').pop() : 'Unknown'}</div>
+                                        </div>
+                                        {hist.text || hist}
                                       </div>
                                     ))}
                                   </div>
