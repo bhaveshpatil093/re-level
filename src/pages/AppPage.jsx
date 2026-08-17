@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
-import { relevelText } from '../lib/api';
+import { relevelText, reexplainText } from '../lib/api';
 import Tesseract from 'tesseract.js';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,10 +70,11 @@ export default function AppPage() {
   
   const handleExplainDifferently = async () => {
     setIsRegenerating(true);
-    setExplanationHistory(prev => [currentExplanation, ...prev]);
+    const historyToPass = [currentExplanation, ...explanationHistory];
+    setExplanationHistory(historyToPass);
     
     try {
-      const response = await relevelText(inputText.trim(), selectedLang.name, gradeLevel, "explain_differently");
+      const response = await reexplainText(inputText.trim(), selectedLang.name, gradeLevel, historyToPass);
       setCurrentExplanation(response);
     } catch (error) {
       console.error(error);
