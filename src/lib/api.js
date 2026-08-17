@@ -69,3 +69,36 @@ CRITICAL RULES:
   
   return { text: responseText, model: modelToUse };
 }
+
+/**
+ * Generate 2 quick reading comprehension questions based on the text.
+ * 
+ * @param {string} text - The original text passage.
+ * @returns {Promise<Array>} Array of question objects.
+ */
+export async function generateDiagnosticQuestions(text) {
+  const systemPrompt = `You are an expert reading comprehension teacher. Based on the provided text, generate exactly 2 short multiple-choice questions to test the student's understanding. 
+Output ONLY a valid JSON array of objects. Do not include markdown formatting or conversational filler.
+Format:
+[
+  {
+    "question": "What is the main idea of the text?",
+    "options": ["A", "B", "C"],
+    "correctIndex": 0
+  }
+]`;
+
+  const responseText = await callFeatherlessModel('mistralai/Mistral-7B-Instruct-v0.2', systemPrompt, text, {
+    temperature: 0.3,
+    max_tokens: 300
+  });
+
+  try {
+    let cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanText);
+  } catch (error) {
+    console.error("Failed to parse diagnostic questions JSON:", error);
+    console.log("Raw output was:", responseText);
+    throw new Error("Failed to generate valid diagnostic questions.");
+  }
+}

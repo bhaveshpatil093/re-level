@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
+import { DiagnosticModal } from '../components/DiagnosticModal';
 import { useRelevel, RelevelProvider } from '../context/RelevelContext';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,6 +30,7 @@ function AppPageContent() {
     uploadedImage, setUploadedImage,
     isExtractingText,
     ocrProgress,
+    showDiagnosticModal,
     selectedLang, setSelectedLang,
     gradeLevel, setGradeLevel,
     currentExplanation,
@@ -733,6 +735,11 @@ function AppPageContent() {
         {showOnboarding && (
           <OnboardingModal isOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
         )}
+      </AnimatePresence>
+
+      {/* Diagnostic Modal */}
+      <AnimatePresence>
+        {showDiagnosticModal && <DiagnosticModal />}
       </AnimatePresence>
     </div>
   );

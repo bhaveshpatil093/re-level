@@ -24,6 +24,11 @@ export function RelevelProvider({ children }) {
   const [inputError, setInputError] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
   
+  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
+  const [hasCompletedDiagnostic, setHasCompletedDiagnostic] = useState(() => {
+    return localStorage.getItem('relevel_diagnostic_completed') === 'true';
+  });
+  
   const [isExtractingText, setIsExtractingText] = useState(false);
   const [ocrProgress, setOcrProgress] = useState(0);
   
@@ -51,8 +56,12 @@ export function RelevelProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('relevel_history', JSON.stringify(historyItems));
   }, [historyItems]);
+  
+  useEffect(() => {
+    localStorage.setItem('relevel_diagnostic_completed', hasCompletedDiagnostic);
+  }, [hasCompletedDiagnostic]);
 
-  const handleRelevel = async () => {
+  const handleRelevel = async (skipDiagnostic = false) => {
     setInputError("");
     const text = inputText.trim();
     
@@ -68,6 +77,11 @@ export function RelevelProvider({ children }) {
     
     if (text.length > 5000) {
       setInputError("That text is too long! Please keep it under 5000 characters.");
+      return;
+    }
+    
+    if (!hasCompletedDiagnostic && !skipDiagnostic) {
+      setShowDiagnosticModal(true);
       return;
     }
     
@@ -198,6 +212,8 @@ export function RelevelProvider({ children }) {
       inputText, setInputText,
       inputError, setInputError,
       uploadedImage, setUploadedImage,
+      showDiagnosticModal, setShowDiagnosticModal,
+      hasCompletedDiagnostic, setHasCompletedDiagnostic,
       isExtractingText, setIsExtractingText,
       ocrProgress, setOcrProgress,
       selectedLang, setSelectedLang,
