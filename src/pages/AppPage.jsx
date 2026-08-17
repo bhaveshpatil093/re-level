@@ -50,9 +50,81 @@ export default function AppPage() {
   );
   
   // Audio playback state
-  const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [playbackProgress, setPlaybackProgress] = useState(0);
+  
+  const utteranceRef = useRef(null);
+
+  const playAudio = () => {
+    if (!currentExplanation) return;
+    
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+      setIsPlaying(true);
+      return;
+    }
+    
+    if (window.speechSynthesis.speaking) {
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(currentExplanation);
+    
+    // Find voice matching the language
+    const voices = window.speechSynthesis.getVoices();
+    const matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(selectedLang.code.toLowerCase()));
+    
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    } else {
+      utterance.lang = selectedLang.code;
+    }
+    
+    utterance.rate = playbackSpeed;
+    
+    utterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        const progress = (event.charIndex / currentExplanation.length) * 100;
+        setPlaybackProgress(progress);
+      }
+    };
+    
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setPlaybackProgress(100); // Fill bar at the end
+      setTimeout(() => setPlaybackProgress(0), 1000);
+    };
+    
+    utterance.onerror = () => {
+      setIsPlaying(false);
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
+  const pauseAudio = () => {
+    window.speechSynthesis.pause();
+    setIsPlaying(false);
+  };
+  
+  const handleSpeedChange = (speed) => {
+    setPlaybackSpeed(speed);
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      setPlaybackProgress(0);
+      // Let the user click play again, restarting on speed change is safest across browsers
+    }
+  };
+
+  // Ensure voices are loaded (some browsers need this triggered)
+  useEffect(() => {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  }, []);
 
   const handleRelevel = async () => {
     if (!inputText.trim()) return;
@@ -93,23 +165,6 @@ export default function AppPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Simulate audio playback progress
-  useEffect(() => {
-    let interval;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setPlaybackProgress(prev => {
-          if (prev >= 100) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + (5 * playbackSpeed);
-        });
-      }, 500);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed]);
 
   const filteredLangs = LANGUAGES.filter(l => l.name.toLowerCase().includes(langSearch.toLowerCase()));
 
@@ -571,39 +626,35 @@ export default function AppPage() {
                           </AnimatePresence>
 
                           {/* TTS Controls */}
-                          <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col gap-4">
-                            {/* Progress bar */}
-                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="mt-auto pt-4 border-t border-slate-100 flex items-center gap-4">
+                            <button 
+                              onClick={isPlaying ? pauseAudio : playAudio}
+                              className="w-11 h-11 bg-teal-500 text-white rounded-full flex items-center justify-center hover:bg-teal-600 shadow-sm hover:shadow transition-all active:scale-95 z-10 shrink-0"
+                            >
+                              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
+                            </button>
+                            
+                            {/* Progress Bar */}
+                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden shrink-0 min-w-20">
                               <motion.div 
                                 className="h-full bg-teal-500 rounded-full"
+                                initial={{ width: "0%" }}
                                 animate={{ width: `${playbackProgress}%` }}
-                                transition={{ duration: 0.5, ease: "linear" }}
+                                transition={{ duration: 0.1, ease: "linear" }}
                               />
                             </div>
                             
-                            <div className="flex items-center justify-between">
-                              <button 
-                                onClick={() => {
-                                  setIsPlaying(!isPlaying);
-                                  if (playbackProgress >= 100) setPlaybackProgress(0);
-                                }}
-                                className="w-11 h-11 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center hover:bg-teal-100 transition-colors shadow-sm active:scale-95"
-                                aria-label={isPlaying ? "Pause" : "Play"}
-                              >
-                                {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
-                              </button>
-                              
-                              <div className="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-200">
-                                {[0.75, 1, 1.25].map(speed => (
-                                  <button
-                                    key={speed}
-                                    onClick={() => setPlaybackSpeed(speed)}
-                                    className={`px-3 py-1.5 rounded-md text-[13px] font-bold transition-all ${playbackSpeed === speed ? 'bg-white text-navy shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                                  >
-                                    {speed}x
-                                  </button>
-                                ))}
-                              </div>
+                            {/* Speed Controls */}
+                            <div className="flex bg-slate-100 rounded-lg p-1 shrink-0">
+                              {[0.75, 1, 1.25].map(speed => (
+                                <button 
+                                  key={speed}
+                                  onClick={() => handleSpeedChange(speed)}
+                                  className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'}`}
+                                >
+                                  {speed}x
+                                </button>
+                              ))}
                             </div>
                           </div>
                         </div>
