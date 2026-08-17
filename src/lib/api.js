@@ -21,17 +21,19 @@ const REEXPLAIN_MODELS = [
  * @param {string} text - The original text passage.
  * @param {string} targetLanguage - The target language (e.g., "Spanish").
  * @param {number|string} gradeLevel - The target reading level grade (3-12).
+ * @param {Function} [onFallback] - Optional callback fired if a model fallback occurs.
  * @returns {Promise<{text: string, model: string}>} The generated clean text and model used.
  */
-export async function relevelText(text, targetLanguage, gradeLevel) {
+export async function relevelText(text, targetLanguage, gradeLevel, onFallback) {
   const systemPrompt = `You are an expert bilingual teacher. Translate the following text into ${targetLanguage}, and rewrite it so a ${gradeLevel} reading-level student can fully understand it. Preserve all facts and meaning. Do not add information that isn't in the original. Keep sentences short. Explain any necessary technical terms in simple language. Return ONLY the clean translated and simplified text. Do not include markdown formatting or conversational filler.`;
 
-  const responseText = await callFeatherlessModel(DEFAULT_MODEL, systemPrompt, text, {
+  const { content: responseText, modelUsed } = await callFeatherlessModel(DEFAULT_MODEL, systemPrompt, text, {
     temperature: 0.7,
-    max_tokens: 800
+    max_tokens: 800,
+    onFallback
   });
   
-  return { text: responseText, model: DEFAULT_MODEL };
+  return { text: responseText, model: modelUsed };
 }
 
 /**
@@ -42,9 +44,10 @@ export async function relevelText(text, targetLanguage, gradeLevel) {
  * @param {number|string} gradeLevel - The target reading level grade (3-12).
  * @param {Array<{text: string, model: string}>} previousExplanations - Array of previously generated explanations to avoid.
  * @param {number} attemptCount - The number of times the user has requested a new explanation.
+ * @param {Function} [onFallback] - Optional callback fired if a model fallback occurs.
  * @returns {Promise<{text: string, model: string}>} The generated clean text and model used.
  */
-export async function reexplainText(text, targetLanguage, gradeLevel, previousExplanations = [], attemptCount = 0) {
+export async function reexplainText(text, targetLanguage, gradeLevel, previousExplanations = [], attemptCount = 0, onFallback) {
   const historyText = previousExplanations.map((exp, i) => {
     const content = typeof exp === 'string' ? exp : exp.text;
     return `Previous Explanation ${i + 1}:\n${content}`;
@@ -62,12 +65,13 @@ CRITICAL RULES:
 
   const modelToUse = REEXPLAIN_MODELS[attemptCount % REEXPLAIN_MODELS.length];
 
-  const responseText = await callFeatherlessModel(modelToUse, systemPrompt, userPrompt, {
+  const { content: responseText, modelUsed } = await callFeatherlessModel(modelToUse, systemPrompt, userPrompt, {
     temperature: 0.8,
-    max_tokens: 800
+    max_tokens: 800,
+    onFallback
   });
   
-  return { text: responseText, model: modelToUse };
+  return { text: responseText, model: modelUsed };
 }
 
 /**
@@ -88,7 +92,7 @@ Format:
   }
 ]`;
 
-  const responseText = await callFeatherlessModel('mistralai/Mistral-7B-Instruct-v0.2', systemPrompt, text, {
+  const { content: responseText } = await callFeatherlessModel('mistralai/Mistral-7B-Instruct-v0.2', systemPrompt, text, {
     temperature: 0.3,
     max_tokens: 300
   });

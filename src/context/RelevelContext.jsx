@@ -39,6 +39,7 @@ export function RelevelProvider({ children }) {
   const [currentModel, setCurrentModel] = useState("");
   const [explanationHistory, setExplanationHistory] = useState([]);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [fallbackToast, setFallbackToast] = useState(null);
 
   // History state mapped to localStorage
   const [historyItems, setHistoryItems] = useState(() => {
@@ -86,9 +87,13 @@ export function RelevelProvider({ children }) {
     }
     
     setAppState("loading");
+    setFallbackToast(null);
     
     try {
-      const { text, model } = await relevelText(text, selectedLang.name, gradeLevel);
+      const { text, model } = await relevelText(text, selectedLang.name, gradeLevel, (fallbackModel) => {
+        setFallbackToast(fallbackModel);
+      });
+      setFallbackToast(null);
       setCurrentExplanation(text);
       setCurrentModel(model);
       setAppState("result");
@@ -116,12 +121,16 @@ export function RelevelProvider({ children }) {
   
   const handleExplainDifferently = async () => {
     setIsRegenerating(true);
+    setFallbackToast(null);
     const historyToPass = [{ text: currentExplanation, model: currentModel }, ...explanationHistory];
     setExplanationHistory(historyToPass);
     
     try {
       const attemptCount = historyToPass.length;
-      const { text, model } = await reexplainText(inputText.trim(), selectedLang.name, gradeLevel, historyToPass, attemptCount);
+      const { text, model } = await reexplainText(inputText.trim(), selectedLang.name, gradeLevel, historyToPass, attemptCount, (fallbackModel) => {
+        setFallbackToast(fallbackModel);
+      });
+      setFallbackToast(null);
       setCurrentExplanation(text);
       setCurrentModel(model);
       window.speechSynthesis.cancel();
@@ -222,6 +231,7 @@ export function RelevelProvider({ children }) {
       currentModel, setCurrentModel,
       explanationHistory, setExplanationHistory,
       isRegenerating, setIsRegenerating,
+      fallbackToast, setFallbackToast,
       historyItems, setHistoryItems,
       handleRelevel,
       handleExplainDifferently,

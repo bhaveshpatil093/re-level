@@ -37,6 +37,7 @@ function AppPageContent() {
     currentModel,
     explanationHistory,
     isRegenerating,
+    fallbackToast,
     historyItems,
     handleRelevel,
     handleExplainDifferently,
@@ -740,6 +741,28 @@ function AppPageContent() {
       {/* Diagnostic Modal */}
       <AnimatePresence>
         {showDiagnosticModal && <DiagnosticModal />}
+      </AnimatePresence>
+      
+      {/* Fallback Toast */}
+      <AnimatePresence>
+        {fallbackToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 bg-indigo-900 text-white px-5 py-4 rounded-2xl shadow-xl flex items-center gap-4 max-w-sm border border-indigo-700"
+          >
+            <div className="w-10 h-10 bg-indigo-800 rounded-full flex items-center justify-center shrink-0">
+              <RefreshCw className="w-5 h-5 animate-spin text-indigo-300" />
+            </div>
+            <div>
+              <p className="font-bold text-[15px]">Switching models...</p>
+              <p className="text-indigo-200 text-xs mt-0.5 leading-relaxed">
+                The primary model is busy. Falling back to <span className="font-bold text-white">{fallbackToast.split('/').pop()}</span> to ensure a fast response.
+              </p>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
