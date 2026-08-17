@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap } from 'lucide-react'
+import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap, Camera, Settings, CheckCircle2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { GradientBlob } from '../components/ui/GradientBlob'
@@ -300,6 +300,81 @@ export default function Landing() {
                 <p className="text-slate-500 leading-relaxed text-[15px]">{card.desc}</p>
               </motion.div>
             ))}
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section id="how-it-works" className="max-w-[1100px] mx-auto w-full px-4 pt-16 pb-32 relative z-10">
+          <div className="text-center mb-20">
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-bold text-navy mb-4 tracking-tight"
+            >
+              How it works
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-slate-500 max-w-2xl mx-auto"
+            >
+              Three simple steps to break down any complex text.
+            </motion.p>
+          </div>
+
+          <div className="relative max-w-4xl mx-auto">
+            {/* Thin connecting line for Desktop */}
+            <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-[2px] bg-slate-200 z-0"></div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-6 relative z-10">
+              {/* Step 1 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="flex flex-col items-center text-center relative"
+              >
+                <div className="w-24 h-24 bg-white rounded-full border-4 border-slate-50 shadow-sm flex items-center justify-center relative z-10 mb-6">
+                  <Camera className="w-8 h-8 text-blue-500" />
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold shadow-sm border-[3px] border-white">1</div>
+                </div>
+                <h3 className="text-xl font-bold text-navy mb-3 px-4">Paste or snap a photo of any text</h3>
+              </motion.div>
+
+              {/* Step 2 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="flex flex-col items-center text-center relative"
+              >
+                <div className="w-24 h-24 bg-white rounded-full border-4 border-slate-50 shadow-sm flex items-center justify-center relative z-10 mb-6">
+                  <Settings className="w-8 h-8 text-teal-500" />
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center font-bold shadow-sm border-[3px] border-white">2</div>
+                </div>
+                <h3 className="text-xl font-bold text-navy mb-3 px-4">Pick your language and reading level</h3>
+              </motion.div>
+
+              {/* Step 3 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-col items-center text-center relative"
+              >
+                <div className="w-24 h-24 bg-white rounded-full border-4 border-slate-50 shadow-sm flex items-center justify-center relative z-10 mb-6">
+                  <CheckCircle2 className="w-8 h-8 text-purple-500" />
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold shadow-sm border-[3px] border-white">3</div>
+                </div>
+                <h3 className="text-xl font-bold text-navy mb-2 px-2">Get an explanation you actually understand</h3>
+                <p className="text-slate-500 text-[15px] px-2">Read it, hear it, or ask for it a different way.</p>
+              </motion.div>
+            </div>
           </div>
         </section>
       </main>
