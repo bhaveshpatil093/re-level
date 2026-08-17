@@ -1,19 +1,25 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '../components/ui/Button'
+import { GradientBlob } from '../components/ui/GradientBlob'
+import { Badge } from '../components/ui/Badge'
 
 export default function Landing() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden z-0">
+      <GradientBlob className="w-[600px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-50 border border-accent-200 text-small text-accent-700 mb-8">
-          <Sparkles className="w-4 h-4 text-accent-500" />
-          <span className="font-medium">Welcome to re-level</span>
+        <div className="mb-8 flex justify-center">
+          <Badge variant="accent">
+            <Sparkles className="w-3.5 h-3.5" />
+            Welcome to re-level
+          </Badge>
         </div>
         <h1 className="text-hero font-extrabold tracking-tight mb-6 text-navy">
           Level up your workflow
