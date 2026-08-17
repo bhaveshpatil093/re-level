@@ -30,6 +30,18 @@ export default function AppPage() {
   const [langOpen, setLangOpen] = useState(false);
   const [gradeLevel, setGradeLevel] = useState(8);
   const dropdownRef = useRef(null);
+  
+  // App view state
+  const [appState, setAppState] = useState("input"); // "input", "loading", "result"
+
+  const handleRelevel = () => {
+    if (!inputText.trim() && !uploadedImage) return;
+    setAppState("loading");
+    // Simulate API call
+    setTimeout(() => {
+      setAppState("result");
+    }, 2500);
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -145,7 +157,9 @@ export default function AppPage() {
           
           {/* Workspace Area */}
           <div className="flex-1 bg-slate-50/50 p-6 lg:p-10 overflow-y-auto">
-            <div className="max-w-3xl mx-auto w-full pt-8 lg:pt-12 pb-20">
+            
+            {appState === "input" && (
+              <div className="max-w-3xl mx-auto w-full pt-8 lg:pt-12 pb-20">
               <div className="mb-8 text-center md:text-left">
                 <h3 className="text-3xl font-bold text-navy mb-3">What are we learning today?</h3>
                 <p className="text-slate-500 text-[15px]">
@@ -290,7 +304,11 @@ export default function AppPage() {
                   <div className="text-xs text-slate-400 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                     {inputText.length} characters
                   </div>
-                  <button className="bg-navy text-white px-8 py-3 rounded-full font-bold text-[15px] hover:bg-blue-600 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2">
+                  <button 
+                    onClick={handleRelevel}
+                    disabled={!inputText.trim() && !uploadedImage}
+                    className="bg-navy text-white px-8 py-3 rounded-full font-bold text-[15px] hover:bg-blue-600 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  >
                     <Sparkles className="w-4 h-4 text-blue-300" />
                     Re-Level this
                   </button>
@@ -298,6 +316,84 @@ export default function AppPage() {
               </div>
 
             </div>
+            )}
+
+            {/* Output View (Loading & Result) */}
+            {(appState === "loading" || appState === "result") && (
+              <div className="max-w-[1200px] mx-auto w-full pt-2 lg:pt-6 pb-20">
+                <button 
+                  onClick={() => setAppState("input")}
+                  className="flex items-center gap-2 text-slate-500 hover:text-navy transition-colors mb-6 font-medium text-[15px]"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  Back to editor
+                </button>
+                
+                <div className="flex flex-col lg:flex-row gap-6 min-h-[600px] h-full">
+                  
+                  {/* Left Column: Original Text */}
+                  <div className="w-full lg:w-5/12 flex flex-col">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 pl-2 flex items-center gap-2">
+                      Original Input
+                    </div>
+                    <div className="bg-slate-100/70 rounded-[2rem] p-6 lg:p-8 border border-slate-200/60 flex-1 relative overflow-y-auto max-h-[600px]">
+                       {uploadedImage ? (
+                         <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200 opacity-80">
+                           <img src={uploadedImage} alt="Original" className="w-full h-auto object-contain" />
+                         </div>
+                       ) : (
+                         <p className="text-slate-500 font-serif leading-relaxed opacity-80 whitespace-pre-wrap">
+                           {inputText}
+                         </p>
+                       )}
+                    </div>
+                  </div>
+                  
+                  {/* Right Column: Result */}
+                  <div className="w-full lg:w-7/12 flex flex-col">
+                    <div className="flex items-center justify-between mb-3 px-2">
+                       <div className="text-xs font-bold uppercase tracking-wider text-teal-600 flex items-center gap-1.5">
+                         <Sparkles className="w-4 h-4" /> Re-Leveled Result
+                       </div>
+                       <div className="flex items-center gap-2">
+                         <span className="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-md border border-blue-100">
+                           Grade {gradeLevel}
+                         </span>
+                         <span className="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md border border-slate-200 flex items-center gap-1">
+                           {selectedLang.flag} {selectedLang.name}
+                         </span>
+                       </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-200 flex-1 relative focus-within:ring-4 focus-within:ring-blue-50 focus-within:border-blue-300 transition-all duration-300 overflow-y-auto max-h-[600px]">
+                      {appState === "loading" ? (
+                        <div className="animate-pulse flex flex-col gap-5 pt-2">
+                          <div className="h-5 bg-slate-200 rounded-full w-3/4"></div>
+                          <div className="h-5 bg-slate-200 rounded-full w-full"></div>
+                          <div className="h-5 bg-slate-200 rounded-full w-5/6"></div>
+                          <div className="h-5 bg-slate-200 rounded-full w-11/12 mt-6"></div>
+                          <div className="h-5 bg-slate-200 rounded-full w-4/5"></div>
+                          <div className="h-5 bg-slate-200 rounded-full w-full"></div>
+                          <div className="h-5 bg-slate-200 rounded-full w-2/3 mt-6"></div>
+                        </div>
+                      ) : (
+                        <div 
+                          className="font-sans text-[17px] text-slate-700 leading-loose outline-none" 
+                          contentEditable 
+                          suppressContentEditableWarning
+                        >
+                          <p className="mb-6">This is your highly simplified, re-leveled output text. It has been perfectly adjusted to a Grade {gradeLevel} reading level and translated into {selectedLang.name}.</p>
+                          <p className="mb-6">Notice how the complex vocabulary and convoluted sentence structures have been carefully unwrapped into clear, direct statements.</p>
+                          <p>You can click anywhere in this card to edit the text manually if you want to make further tweaks before saving it to your history or exporting it.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            )}
+            
           </div>
         </div>
 
