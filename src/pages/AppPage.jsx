@@ -554,9 +554,6 @@ function AppPageContent() {
                          <Sparkles className="w-4 h-4" /> Re-Leveled Result
                        </div>
                        <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md border border-indigo-100 truncate max-w-[120px]" title={currentModel}>
-                           {currentModel ? currentModel.split('/').pop() : 'Llama-3-8B'}
-                         </span>
                          <span className="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-md border border-blue-100">
                            Grade {gradeLevel}
                          </span>
@@ -594,45 +591,59 @@ function AppPageContent() {
                             </motion.div>
                           </AnimatePresence>
 
-                          {/* TTS Controls */}
-                          <div className="mt-auto pt-4 border-t border-slate-100 flex items-center gap-4">
-                            <button 
-                              onClick={isPlaying ? pauseAudio : playAudio}
-                              disabled={isAudioLoading}
-                              aria-label={isPlaying ? "Pause audio" : "Play audio"}
-                              className="w-11 h-11 bg-teal-500 text-white rounded-full flex items-center justify-center hover:bg-teal-600 shadow-sm hover:shadow transition-all active:scale-95 z-10 shrink-0 disabled:opacity-50"
-                            >
-                              {isAudioLoading ? (
-                                <RefreshCw className="w-5 h-5 animate-spin" />
-                              ) : isPlaying ? (
-                                <Pause className="w-5 h-5" />
-                              ) : (
-                                <Play className="w-5 h-5 ml-1" />
-                              )}
-                            </button>
-                            
-                            {/* Progress Bar */}
-                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden shrink-0 min-w-20">
-                              <motion.div 
-                                className="h-full bg-teal-500 rounded-full"
-                                initial={{ width: "0%" }}
-                                animate={{ width: `${playbackProgress}%` }}
-                                transition={{ duration: 0.1, ease: "linear" }}
-                              />
+                          {/* TTS Controls and Powered By Tag */}
+                          <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                              <button 
+                                onClick={isPlaying ? pauseAudio : playAudio}
+                                disabled={isAudioLoading}
+                                aria-label={isPlaying ? "Pause audio" : "Play audio"}
+                                className="w-11 h-11 bg-teal-500 text-white rounded-full flex items-center justify-center hover:bg-teal-600 shadow-sm hover:shadow transition-all active:scale-95 z-10 shrink-0 disabled:opacity-50"
+                              >
+                                {isAudioLoading ? (
+                                  <RefreshCw className="w-5 h-5 animate-spin" />
+                                ) : isPlaying ? (
+                                  <Pause className="w-5 h-5" />
+                                ) : (
+                                  <Play className="w-5 h-5 ml-1" />
+                                )}
+                              </button>
+                              
+                              {/* Progress Bar */}
+                              <div className="flex-1 sm:w-32 h-2 bg-slate-200 rounded-full overflow-hidden shrink-0 min-w-20">
+                                <motion.div 
+                                  className="h-full bg-teal-500 rounded-full"
+                                  initial={{ width: "0%" }}
+                                  animate={{ width: `${playbackProgress}%` }}
+                                  transition={{ duration: 0.1, ease: "linear" }}
+                                />
+                              </div>
+                              
+                              {/* Speed Controls */}
+                              <div className="flex bg-slate-100 rounded-lg p-1 shrink-0">
+                                {[0.75, 1, 1.25].map(speed => (
+                                  <button 
+                                    key={speed}
+                                    onClick={() => handleSpeedChange(speed)}
+                                    aria-label={`Set playback speed to ${speed}x`}
+                                    className={`px-3 py-2 text-sm font-bold rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-600 hover:text-slate-800 hover:bg-slate-200'}`}
+                                  >
+                                    {speed}x
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                            
-                            {/* Speed Controls */}
-                            <div className="flex bg-slate-100 rounded-lg p-1 shrink-0">
-                              {[0.75, 1, 1.25].map(speed => (
-                                <button 
-                                  key={speed}
-                                  onClick={() => handleSpeedChange(speed)}
-                                  aria-label={`Set playback speed to ${speed}x`}
-                                  className={`px-3 py-2 text-sm font-bold rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-600 hover:text-slate-800 hover:bg-slate-200'}`}
-                                >
-                                  {speed}x
-                                </button>
-                              ))}
+
+                            {/* Powered By Tag (Collapsible conceptually, but shown simply here to fit the prompt logic) */}
+                            <div className="group relative self-end sm:self-auto cursor-help">
+                              <div className="text-[10px] sm:text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200">
+                                <Sparkles className="w-3 h-3" />
+                                Powered by Featherless AI
+                              </div>
+                              <div className="absolute bottom-full right-0 mb-2 w-max max-w-xs bg-indigo-900 text-white text-[11px] font-mono p-3 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-20">
+                                <span className="text-indigo-300 block mb-1">Generated by:</span>
+                                {currentModel || 'meta-llama/Meta-Llama-3-8B-Instruct'}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -676,7 +687,12 @@ function AppPageContent() {
                                       <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-[15px] text-slate-600 leading-relaxed whitespace-pre-wrap">
                                         <div className="flex items-center justify-between mb-2">
                                           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Version {explanationHistory.length - idx}</div>
-                                          <div className="text-[10px] font-bold text-indigo-400 bg-indigo-50/50 px-1.5 py-0.5 rounded border border-indigo-100">{hist.model ? hist.model.split('/').pop() : 'Unknown'}</div>
+                                          <div className="group relative cursor-help">
+                                            <div className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">Powered by Featherless AI</div>
+                                            <div className="absolute top-full right-0 mt-1 w-max max-w-[200px] bg-indigo-900 text-white text-[10px] font-mono p-2 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none z-10 transition-opacity">
+                                              {hist.model || 'Unknown'}
+                                            </div>
+                                          </div>
                                         </div>
                                         {hist.text || hist}
                                       </div>

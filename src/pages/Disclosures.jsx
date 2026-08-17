@@ -44,7 +44,15 @@ export default function Disclosures() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0"></span>
-                <span><strong>Model Used:</strong> featherless-model (Llama-3 or provider default)</span>
+                <div className="flex-1">
+                  <strong>Models Used:</strong>
+                  <ul className="mt-2 ml-1 space-y-1.5 text-sm">
+                    <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-slate-400"></span> meta-llama/Meta-Llama-3-8B-Instruct</li>
+                    <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-slate-400"></span> mistralai/Mistral-7B-Instruct-v0.2</li>
+                    <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-slate-400"></span> NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO</li>
+                    <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-slate-400"></span> microsoft/Phi-3-mini-4k-instruct</li>
+                  </ul>
+                </div>
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0"></span>
