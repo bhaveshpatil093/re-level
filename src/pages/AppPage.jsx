@@ -40,6 +40,8 @@ export default function AppPage() {
   const [showHistory, setShowHistory] = useState(false);
   
   // Audio playback state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [playbackProgress, setPlaybackProgress] = useState(0);
   
@@ -72,6 +74,11 @@ export default function AppPage() {
     
     utterance.rate = playbackSpeed;
     
+    utterance.onstart = () => {
+      setIsAudioLoading(false);
+      setIsPlaying(true);
+    };
+    
     utterance.onboundary = (event) => {
       if (event.name === 'word') {
         const progress = (event.charIndex / currentExplanation.length) * 100;
@@ -86,12 +93,13 @@ export default function AppPage() {
     };
     
     utterance.onerror = () => {
+      setIsAudioLoading(false);
       setIsPlaying(false);
     };
 
     utteranceRef.current = utterance;
+    setIsAudioLoading(true);
     window.speechSynthesis.speak(utterance);
-    setIsPlaying(true);
   };
 
   const pauseAudio = () => {
@@ -535,8 +543,8 @@ export default function AppPage() {
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
                               transition={{ duration: 0.3 }}
-                              className="font-sans text-[17px] text-slate-700 leading-loose outline-none whitespace-pre-wrap flex-1 mb-6" 
-                              contentEditable 
+                              className={`font-sans text-[17px] text-slate-700 leading-loose outline-none whitespace-pre-wrap flex-1 mb-6 transition-all duration-300 ${isRegenerating ? 'opacity-40 blur-[2px]' : ''}`} 
+                              contentEditable={!isRegenerating} 
                               suppressContentEditableWarning
                             >
                               {currentExplanation}
@@ -547,9 +555,16 @@ export default function AppPage() {
                           <div className="mt-auto pt-4 border-t border-slate-100 flex items-center gap-4">
                             <button 
                               onClick={isPlaying ? pauseAudio : playAudio}
-                              className="w-11 h-11 bg-teal-500 text-white rounded-full flex items-center justify-center hover:bg-teal-600 shadow-sm hover:shadow transition-all active:scale-95 z-10 shrink-0"
+                              disabled={isAudioLoading}
+                              className="w-11 h-11 bg-teal-500 text-white rounded-full flex items-center justify-center hover:bg-teal-600 shadow-sm hover:shadow transition-all active:scale-95 z-10 shrink-0 disabled:opacity-50"
                             >
-                              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
+                              {isAudioLoading ? (
+                                <RefreshCw className="w-5 h-5 animate-spin" />
+                              ) : isPlaying ? (
+                                <Pause className="w-5 h-5" />
+                              ) : (
+                                <Play className="w-5 h-5 ml-1" />
+                              )}
                             </button>
                             
                             {/* Progress Bar */}
