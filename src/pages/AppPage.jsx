@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
+import { relevelText } from '../lib/api';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -48,30 +49,38 @@ export default function AppPage() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [playbackProgress, setPlaybackProgress] = useState(0);
 
-  const handleRelevel = () => {
+  const handleRelevel = async () => {
     if (!inputText.trim() && !uploadedImage) return;
     setAppState("loading");
-    // Simulate API call
-    setTimeout(() => {
-      if (inputText.toLowerCase().includes('error')) {
-        setAppState("error");
-      } else {
-        setAppState("result");
-      }
-    }, 2000);
+    
+    const textToProcess = inputText.trim() || "OCR not fully implemented. Please imagine text from the image here.";
+    
+    try {
+      const response = await relevelText(textToProcess, selectedLang.name, gradeLevel);
+      setCurrentExplanation(response);
+      setAppState("result");
+    } catch (error) {
+      console.error(error);
+      setAppState("error");
+    }
   };
   
-  const handleExplainDifferently = () => {
+  const handleExplainDifferently = async () => {
     setIsRegenerating(true);
     setExplanationHistory(prev => [currentExplanation, ...prev]);
     
-    // Simulate regeneration
-    setTimeout(() => {
-      setCurrentExplanation(
-        "Let's think about this a different way: Imagine your text is a puzzle. We've just rearranged the pieces so that the picture makes perfect sense to someone at your exact reading level!\n\nThis new version uses a completely different analogy to help the concept click for you."
-      );
+    const textToProcess = inputText.trim() || "OCR not fully implemented. Please imagine text from the image here.";
+    
+    try {
+      const response = await relevelText(textToProcess, selectedLang.name, gradeLevel, "explain_differently");
+      setCurrentExplanation(response);
+    } catch (error) {
+      console.error(error);
+      // In a real app we might show a toast, but for now we just revert state
+      setExplanationHistory(prev => prev.slice(1)); // Remove the last pushed history
+    } finally {
       setIsRegenerating(false);
-    }, 800);
+    }
   };
 
   useEffect(() => {
