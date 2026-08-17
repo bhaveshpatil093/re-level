@@ -141,6 +141,99 @@ export default function Landing() {
             </span>
           ))}
         </motion.div>
+
+        {/* Features Section - Your Toolkit */}
+        <section className="max-w-[1100px] mx-auto w-full px-4 pt-32 pb-16 relative z-10">
+          <div className="text-center mb-12">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center justify-center bg-teal-50 text-teal-600 px-5 py-2 rounded-full font-semibold text-sm mb-6 border border-teal-100 shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Your toolkit
+            </motion.div>
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-bold text-navy mb-8 tracking-tight"
+            >
+              Everything you need to master any text
+            </motion.h2>
+            
+            {/* Tab Pill Buttons */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-wrap items-center justify-center gap-3 mt-6"
+            >
+              {['Translate', 'Simplify', 'Re-explain', 'Read Aloud', 'Save & Track'].map((tab, idx) => (
+                <button key={tab} className={`px-6 py-3 rounded-full text-[15px] font-medium transition-colors ${idx === 1 ? 'bg-navy text-white shadow-md' : 'bg-white text-slate-600 hover:text-navy hover:bg-slate-50 border border-slate-200'}`}>
+                  {tab}
+                </button>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Interactive Mockup Container */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="w-full bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgb(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col lg:flex-row mt-12"
+          >
+            
+            {/* Left Panel: Original Dense Text */}
+            <div className="w-full lg:w-1/2 p-8 lg:p-12 bg-slate-50/50 border-b lg:border-b-0 lg:border-r border-slate-100 relative flex flex-col">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Original Text</div>
+              </div>
+              
+              <div className="flex-1 font-serif text-lg leading-loose text-slate-700 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative">
+                <p>
+                  "The mitochondria are double-membrane-bound organelles found in most eukaryotic organisms. They generate most of the cell's supply of adenosine triphosphate (ATP), used as a source of chemical energy. A mitochondrion contains outer and inner membranes composed of phospholipid bilayers and proteins. The two membranes have different properties."
+                </p>
+              </div>
+            </div>
+
+            {/* Right Panel: Re-Level Output */}
+            <div className="w-full lg:w-1/2 p-8 lg:p-12 bg-white relative flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2 text-teal-500">
+                  <Sparkles className="w-4 h-4" />
+                  <div className="text-xs font-bold uppercase tracking-widest">Re-Leveled</div>
+                </div>
+                
+                {/* Simple Reading Level Slider */}
+                <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-400">K-5</span>
+                  <div className="w-24 bg-slate-200 h-1.5 rounded-full relative">
+                    <div className="absolute left-0 top-0 h-full bg-[#3B82F6] rounded-full w-[60%]"></div>
+                    <div className="absolute left-[60%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-2 border-[#3B82F6] rounded-full shadow-sm"></div>
+                  </div>
+                  <span className="text-[11px] font-semibold text-navy">Grade 8</span>
+                </div>
+              </div>
+              
+              <div className="flex-1 font-sans text-lg leading-relaxed text-slate-800 bg-blue-50/40 p-6 rounded-2xl border border-blue-100/50">
+                <p className="mb-5">
+                  Think of mitochondria as the tiny power plants inside your body's cells. They take in nutrients and create a special energy (called ATP) that the cell needs to work.
+                </p>
+                <p>
+                  Each of these power plants has two walls—an inner one and an outer one—made of fats and proteins. Both walls have completely different jobs!
+                </p>
+              </div>
+            </div>
+
+          </motion.div>
+        </section>
       </main>
       
       <Footer />
