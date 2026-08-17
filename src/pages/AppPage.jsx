@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
 import { OnboardingModal } from '../components/OnboardingModal';
-import { useRelevel } from '../context/RelevelContext';
+import { useRelevel, RelevelProvider } from '../context/RelevelContext';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,7 +20,7 @@ const SAMPLE_TEXTS = [
   }
 ];
 
-export default function AppPage() {
+function AppPageContent() {
   const {
     LANGUAGES,
     appState, setAppState,
@@ -728,5 +728,13 @@ export default function AppPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function AppPage() {
+  return (
+    <RelevelProvider>
+      <AppPageContent />
+    </RelevelProvider>
   );
 }
