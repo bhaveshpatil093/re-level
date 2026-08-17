@@ -22,6 +22,7 @@ Re-Level is built with modern, fast, and privacy-conscious web technologies:
 - **OCR (Optical Character Recognition):** Tesseract.js (Runs 100% Client-side in Browser WebAssembly for speed and privacy)
 - **Text-to-Speech (TTS):** Native Browser Web Speech API (Free, client-side, offline capable)
 - **State & Storage:** React Context API + LocalStorage 
+- **Training Data:** Zero-shot prompting. No external training datasets were collected, scraped, or used to build this runtime tool.
 
 ## 🚀 Setup Instructions
 
