@@ -38,6 +38,7 @@ export async function relevelText(text, targetLanguage, gradeLevel) {
           { role: 'user', content: text }
         ],
         temperature: 0.7,
+        max_tokens: 800,
       })
     });
 
@@ -94,6 +95,7 @@ CRITICAL RULES:
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.8, // Slightly higher temp for more creative analogies
+        max_tokens: 800,
       })
     });
 
