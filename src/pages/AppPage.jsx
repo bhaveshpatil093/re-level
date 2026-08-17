@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
-import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search } from 'lucide-react';
+import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LANGUAGES = [
@@ -33,6 +33,12 @@ export default function AppPage() {
   
   // App view state
   const [appState, setAppState] = useState("input"); // "input", "loading", "result"
+  const [explanationHistory, setExplanationHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [currentExplanation, setCurrentExplanation] = useState(
+    "This is your highly simplified, re-leveled output text. It has been perfectly adjusted to your selected reading level.\n\nNotice how the complex vocabulary and convoluted sentence structures have been carefully unwrapped into clear, direct statements.\n\nYou can click anywhere in this card to edit the text manually if you want to make further tweaks before saving it to your history or exporting it."
+  );
 
   const handleRelevel = () => {
     if (!inputText.trim() && !uploadedImage) return;
@@ -41,6 +47,19 @@ export default function AppPage() {
     setTimeout(() => {
       setAppState("result");
     }, 2500);
+  };
+  
+  const handleExplainDifferently = () => {
+    setIsRegenerating(true);
+    setExplanationHistory(prev => [currentExplanation, ...prev]);
+    
+    // Simulate regeneration
+    setTimeout(() => {
+      setCurrentExplanation(
+        "Let's think about this a different way: Imagine your text is a puzzle. We've just rearranged the pieces so that the picture makes perfect sense to someone at your exact reading level!\n\nThis new version uses a completely different analogy to help the concept click for you."
+      );
+      setIsRegenerating(false);
+    }, 800);
   };
 
   useEffect(() => {
@@ -350,8 +369,8 @@ export default function AppPage() {
                   </div>
                   
                   {/* Right Column: Result */}
-                  <div className="w-full lg:w-7/12 flex flex-col">
-                    <div className="flex items-center justify-between mb-3 px-2">
+                  <div className="w-full lg:w-7/12 flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-3 px-2 shrink-0">
                        <div className="text-xs font-bold uppercase tracking-wider text-teal-600 flex items-center gap-1.5">
                          <Sparkles className="w-4 h-4" /> Re-Leveled Result
                        </div>
@@ -365,7 +384,7 @@ export default function AppPage() {
                        </div>
                     </div>
                     
-                    <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-200 flex-1 relative focus-within:ring-4 focus-within:ring-blue-50 focus-within:border-blue-300 transition-all duration-300 overflow-y-auto max-h-[600px]">
+                    <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-200 flex-1 relative focus-within:ring-4 focus-within:ring-blue-50 focus-within:border-blue-300 transition-all duration-300 overflow-y-auto mb-4">
                       {appState === "loading" ? (
                         <div className="animate-pulse flex flex-col gap-5 pt-2">
                           <div className="h-5 bg-slate-200 rounded-full w-3/4"></div>
@@ -377,17 +396,70 @@ export default function AppPage() {
                           <div className="h-5 bg-slate-200 rounded-full w-2/3 mt-6"></div>
                         </div>
                       ) : (
-                        <div 
-                          className="font-sans text-[17px] text-slate-700 leading-loose outline-none" 
-                          contentEditable 
-                          suppressContentEditableWarning
-                        >
-                          <p className="mb-6">This is your highly simplified, re-leveled output text. It has been perfectly adjusted to a Grade {gradeLevel} reading level and translated into {selectedLang.name}.</p>
-                          <p className="mb-6">Notice how the complex vocabulary and convoluted sentence structures have been carefully unwrapped into clear, direct statements.</p>
-                          <p>You can click anywhere in this card to edit the text manually if you want to make further tweaks before saving it to your history or exporting it.</p>
-                        </div>
+                        <AnimatePresence mode="wait">
+                          <motion.div 
+                            key={currentExplanation}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="font-sans text-[17px] text-slate-700 leading-loose outline-none whitespace-pre-wrap" 
+                            contentEditable 
+                            suppressContentEditableWarning
+                          >
+                            {currentExplanation}
+                          </motion.div>
+                        </AnimatePresence>
                       )}
                     </div>
+                    
+                    {/* Explain Differently Actions */}
+                    {appState === "result" && (
+                      <div className="shrink-0 flex flex-col gap-3">
+                        <button 
+                          onClick={handleExplainDifferently}
+                          disabled={isRegenerating}
+                          className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold text-[15px] hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+                          Explain it a different way
+                        </button>
+                        
+                        {explanationHistory.length > 0 && (
+                          <div className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                            <button 
+                              onClick={() => setShowHistory(!showHistory)}
+                              className="w-full flex items-center justify-between p-3 text-sm font-medium text-slate-600 hover:text-navy transition-colors focus:outline-none"
+                            >
+                              <span className="flex items-center gap-2">
+                                <History className="w-4 h-4" /> Previous explanations ({explanationHistory.length})
+                              </span>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${showHistory ? 'rotate-180' : ''}`} />
+                            </button>
+                            
+                            <AnimatePresence>
+                              {showHistory && (
+                                <motion.div 
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="p-4 pt-0 border-t border-slate-200 flex flex-col gap-4 mt-2 max-h-[300px] overflow-y-auto no-scrollbar">
+                                    {explanationHistory.map((hist, idx) => (
+                                      <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-[15px] text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Version {explanationHistory.length - idx}</div>
+                                        {hist}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                 </div>
