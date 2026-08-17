@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+@theme {
+  --font-sans: 'Inter', 'Plus Jakarta Sans', sans-serif;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @layer base {
   body {
     @apply bg-background text-body font-sans text-slate-600 antialiased;
