@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button'
 import { GradientBlob } from '../components/ui/GradientBlob'
 import { Badge } from '../components/ui/Badge'
 import { Navbar } from '../components/Navbar'
+import { Footer } from '../components/Footer'
 
 export default function Landing() {
   return (
@@ -41,6 +42,7 @@ export default function Landing() {
           </div>
         </motion.div>
       </main>
+      <Footer />
     </div>
   )
 }
