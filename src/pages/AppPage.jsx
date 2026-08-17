@@ -26,6 +26,7 @@ export default function AppPage() {
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [inputText, setInputText] = useState("");
+  const [inputError, setInputError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
   
@@ -127,11 +128,28 @@ export default function AppPage() {
   }, []);
 
   const handleRelevel = async () => {
-    if (!inputText.trim()) return;
+    setInputError("");
+    const text = inputText.trim();
+    
+    if (!text) {
+      setInputError("Please enter some text to re-level.");
+      return;
+    }
+    
+    if (text.length < 10) {
+      setInputError("That text is a bit too short. Please enter at least 10 characters.");
+      return;
+    }
+    
+    if (text.length > 5000) {
+      setInputError("That text is too long! Please keep it under 5000 characters.");
+      return;
+    }
+    
     setAppState("loading");
     
     try {
-      const response = await relevelText(inputText.trim(), selectedLang.name, gradeLevel);
+      const response = await relevelText(text, selectedLang.name, gradeLevel);
       setCurrentExplanation(response);
       setAppState("result");
       
@@ -187,6 +205,7 @@ export default function AppPage() {
   const processImageOCR = async (file) => {
     setIsExtractingText(true);
     setOcrProgress(0);
+    setInputError("");
     try {
       const result = await Tesseract.recognize(
         file,
@@ -197,10 +216,18 @@ export default function AppPage() {
           }
         }}
       );
-      setInputText(result.data.text);
+      
+      const extractedText = result.data.text.trim();
+      if (!extractedText) {
+        setInputText("");
+        setInputError("We couldn't detect any text in that image. Try a clearer photo or typing manually.");
+      } else {
+        setInputText(extractedText);
+      }
     } catch (error) {
       console.error("OCR Error:", error);
-      setInputText("Failed to extract text from image. Please type manually.");
+      setInputText("");
+      setInputError("Failed to extract text from image. Please type manually.");
     } finally {
       setIsExtractingText(false);
       setOcrProgress(0);
@@ -269,6 +296,7 @@ export default function AppPage() {
   
   const handleNewRelevel = () => {
     setInputText("");
+    setInputError("");
     setUploadedImage(null);
     setCurrentExplanation("");
     setExplanationHistory([]);
@@ -538,21 +566,39 @@ export default function AppPage() {
                 <div className="p-4 flex-1">
                   <textarea 
                     value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
+                    onChange={(e) => {
+                      setInputText(e.target.value);
+                      if (inputError) setInputError(""); // Clear error on type
+                    }}
                     disabled={isExtractingText}
                     className="w-full min-h-[160px] resize-none bg-transparent outline-none text-slate-700 placeholder-slate-400 text-[15px] leading-relaxed disabled:opacity-50"
                     placeholder="...or paste your difficult text here directly."
                   ></textarea>
                 </div>
                 
+                {/* Validation Error Message */}
+                <AnimatePresence>
+                  {inputError && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: -10 }}
+                      className="px-4 py-2.5 mx-4 mb-3 bg-amber-50 border border-amber-200 text-amber-700 text-[13px] font-semibold rounded-xl flex items-center gap-2 shadow-sm"
+                    >
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      {inputError}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
                 {/* Footer Toolbar */}
                 <div className="flex justify-between items-center px-4 pb-4 pt-2 border-t border-slate-100 mt-2">
-                  <div className="text-xs text-slate-400 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                    {inputText.length} characters
+                  <div className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${inputText.length > 5000 ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+                    {inputText.length} / 5000 chars
                   </div>
                   <button 
                     onClick={handleRelevel}
-                    disabled={!inputText.trim() || isExtractingText}
+                    disabled={isExtractingText}
                     className="bg-navy text-white px-8 py-3 rounded-full font-bold text-[15px] hover:bg-blue-600 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
                     <Sparkles className="w-4 h-4 text-blue-300" />
