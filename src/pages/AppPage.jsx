@@ -197,14 +197,14 @@ export default function AppPage() {
                 handleNewRelevel();
                 if (window.innerWidth < 768) setSidebarOpen(false);
               }}
-              className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm active:scale-95 w-full justify-center"
+              className="flex items-center gap-2 bg-navy text-white px-4 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm active:scale-95 w-full justify-center min-h-[44px]"
             >
               <Plus className="w-4 h-4" />
               New Re-Level
             </button>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="md:hidden ml-2 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="md:hidden ml-2 p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
@@ -260,7 +260,7 @@ export default function AppPage() {
           <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 bg-white shrink-0 shadow-sm z-10">
              <button 
                onClick={() => setSidebarOpen(true)} 
-               className="p-2 -ml-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+               className="p-3 -ml-3 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                aria-label="Open sidebar"
              >
                 <Menu className="w-6 h-6" />
@@ -481,7 +481,7 @@ export default function AppPage() {
               <div className="max-w-[1200px] mx-auto w-full pt-2 lg:pt-6 pb-20">
                 <button 
                   onClick={() => setAppState("input")}
-                  className="flex items-center gap-2 text-slate-500 hover:text-navy transition-colors mb-6 font-medium text-[15px]"
+                  className="flex items-center gap-2 text-slate-500 hover:text-navy transition-colors mb-6 font-medium text-[15px] min-h-[44px]"
                 >
                   <ChevronLeft className="w-5 h-5" />
                   Back to editor
@@ -583,7 +583,7 @@ export default function AppPage() {
                                 <button 
                                   key={speed}
                                   onClick={() => handleSpeedChange(speed)}
-                                  className={`px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'}`}
+                                  className={`px-3 py-2 text-sm font-bold rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'}`}
                                 >
                                   {speed}x
                                 </button>
