@@ -204,14 +204,15 @@ export default function AppPage() {
             </button>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="md:hidden ml-2 p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Close sidebar"
+              className="md:hidden ml-2 p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
           
           <div className="flex-1 flex flex-col overflow-hidden px-4 pb-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 pl-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 pl-1">
               Recent History
             </div>
             
@@ -227,9 +228,9 @@ export default function AppPage() {
                 >
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-bold text-navy text-sm truncate pr-6 group-hover:text-blue-600 transition-colors">{item.title}</span>
-                    <span className="text-[11px] font-semibold text-slate-400 shrink-0 mt-0.5">{item.date}</span>
+                    <span className="text-[11px] font-semibold text-slate-500 shrink-0 mt-0.5">{item.date}</span>
                   </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 line-clamp-2 mb-2 leading-relaxed">
                     {item.snippet}
                   </p>
                   <div className="flex items-center gap-2">
@@ -299,16 +300,19 @@ export default function AppPage() {
                 
                 {/* Language Selector */}
                 <div className="relative w-full md:w-[280px] z-20" ref={dropdownRef}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Translate To</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 px-1">Translate To</div>
                   <button 
                     onClick={() => setLangOpen(!langOpen)}
+                    aria-haspopup="listbox"
+                    aria-expanded={langOpen}
+                    aria-label="Select target language"
                     className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-100 h-[50px]"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{selectedLang.flag}</span>
+                      <span className="text-xl" aria-hidden="true">{selectedLang.flag}</span>
                       <span className="font-medium text-navy text-[15px]">{selectedLang.name}</span>
                     </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown aria-hidden="true" className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
                   <AnimatePresence>
@@ -354,17 +358,18 @@ export default function AppPage() {
                 {/* Reading Level Slider */}
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2 px-1">
-                    <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Reading Level</div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Reading Level</div>
                     <div className="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md">Grade {gradeLevel}</div>
                   </div>
                   <div className="bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm flex items-center gap-4 h-[50px] hover:border-blue-300 transition-colors focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100">
-                    <span className="text-xs font-bold text-slate-400 shrink-0 uppercase tracking-wider">Gr. 3</span>
+                    <span className="text-xs font-bold text-slate-500 shrink-0 uppercase tracking-wider">Gr. 3</span>
                     <div className="flex-1 flex items-center">
                       <input 
                         type="range" 
                         min="3" 
                         max="12" 
                         value={gradeLevel}
+                        aria-label="Select reading grade level"
                         onChange={(e) => setGradeLevel(parseInt(e.target.value))}
                         className="w-full custom-slider"
                         style={{
@@ -399,7 +404,7 @@ export default function AppPage() {
                 ) : (
                   <div className="m-2 p-4 bg-slate-50 rounded-[1.5rem] border border-slate-100 flex items-start gap-4 relative">
                     <div className="w-24 h-24 bg-slate-200 rounded-xl overflow-hidden shrink-0 border border-slate-200 shadow-sm relative">
-                      <img src={uploadedImage} alt="Uploaded text" className={`w-full h-full object-cover transition-all ${isExtractingText ? 'opacity-50 blur-sm' : ''}`} />
+                      <img src={uploadedImage} alt="Uploaded textbook page" className={`w-full h-full object-cover transition-all ${isExtractingText ? 'opacity-50 blur-sm' : ''}`} />
                       {isExtractingText && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                            <RefreshCw className="w-6 h-6 text-blue-500 animate-spin mb-1" />
@@ -420,7 +425,8 @@ export default function AppPage() {
                     {!isExtractingText && (
                       <button 
                         onClick={() => { setUploadedImage(null); setInputText(""); }}
-                        className="absolute top-4 right-4 p-2 bg-white text-slate-400 hover:text-rose-500 rounded-full shadow-sm border border-slate-100 hover:bg-rose-50 transition-colors"
+                        aria-label="Remove uploaded image"
+                        className="absolute top-4 right-4 p-2 bg-white text-slate-500 hover:text-rose-500 rounded-full shadow-sm border border-slate-100 hover:bg-rose-50 transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -437,7 +443,8 @@ export default function AppPage() {
                       if (inputError) setInputError(""); // Clear error on type
                     }}
                     disabled={isExtractingText}
-                    className="w-full min-h-[160px] resize-none bg-transparent outline-none text-slate-700 placeholder-slate-400 text-[15px] leading-relaxed disabled:opacity-50"
+                    aria-label="Original text to re-level"
+                    className="w-full min-h-[160px] resize-none bg-transparent outline-none text-slate-700 placeholder-slate-500 text-[15px] leading-relaxed disabled:opacity-50"
                     placeholder="...or paste your difficult text here directly."
                   ></textarea>
                 </div>
@@ -491,13 +498,13 @@ export default function AppPage() {
                   
                   {/* Left Column: Original Text */}
                   <div className="w-full lg:w-5/12 flex flex-col">
-                    <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 pl-2 flex items-center gap-2">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 pl-2 flex items-center gap-2">
                       Original Input
                     </div>
                     <div className="bg-slate-100/70 rounded-[2rem] p-6 lg:p-8 border border-slate-200/60 flex-1 relative overflow-y-auto max-h-[600px]">
                        {uploadedImage ? (
                          <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200 opacity-80">
-                           <img src={uploadedImage} alt="Original" className="w-full h-auto object-contain" />
+                           <img src={uploadedImage} alt="Uploaded textbook page" className="w-full h-auto object-contain" />
                          </div>
                        ) : (
                          <p className="text-slate-500 font-serif leading-relaxed opacity-80 whitespace-pre-wrap">
@@ -556,6 +563,7 @@ export default function AppPage() {
                             <button 
                               onClick={isPlaying ? pauseAudio : playAudio}
                               disabled={isAudioLoading}
+                              aria-label={isPlaying ? "Pause audio" : "Play audio"}
                               className="w-11 h-11 bg-teal-500 text-white rounded-full flex items-center justify-center hover:bg-teal-600 shadow-sm hover:shadow transition-all active:scale-95 z-10 shrink-0 disabled:opacity-50"
                             >
                               {isAudioLoading ? (
@@ -583,7 +591,8 @@ export default function AppPage() {
                                 <button 
                                   key={speed}
                                   onClick={() => handleSpeedChange(speed)}
-                                  className={`px-3 py-2 text-sm font-bold rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'}`}
+                                  aria-label={`Set playback speed to ${speed}x`}
+                                  className={`px-3 py-2 text-sm font-bold rounded-md transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${playbackSpeed === speed ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-600 hover:text-slate-800 hover:bg-slate-200'}`}
                                 >
                                   {speed}x
                                 </button>
