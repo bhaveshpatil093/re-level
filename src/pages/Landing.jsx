@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap, Camera, Settings, CheckCircle2, Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Sparkles, Languages, Volume2, BookOpen, Brain, GraduationCap, Camera, Settings, CheckCircle2, Star, ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { GradientBlob } from '../components/ui/GradientBlob'
@@ -28,8 +28,32 @@ const testimonials = [
   }
 ];
 
+const faqs = [
+  {
+    q: "Is Re-Level free to use?",
+    a: "Re-Level offers a generous free tier that includes up to 50 translations and re-levels per month. For heavy users, we offer a Premium plan that unlocks unlimited usage and advanced text analysis features."
+  },
+  {
+    q: "What languages are supported?",
+    a: "Currently, we support translations from over 100 languages into English. We are actively working on supporting outputs in additional languages to help learners across the globe."
+  },
+  {
+    q: "Does it work with photos of textbook pages?",
+    a: "Yes! You can snap a photo of any textbook page or worksheet on your mobile device, or upload an image directly. Our advanced OCR technology will extract the text and instantly re-level it for you."
+  },
+  {
+    q: "How accurate is the translation?",
+    a: "We use state-of-the-art AI language models designed specifically for context preservation. While it simplifies the reading level, it meticulously retains the core factual meaning and educational context of the original text."
+  },
+  {
+    q: "Can teachers use this with a whole class?",
+    a: "Absolutely. We offer an Educator Plan that allows teachers to create bulk re-leveled reading assignments, track student comprehension, and provide tailored reading materials for diverse classrooms."
+  }
+];
+
 export default function Landing() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [openFaq, setOpenFaq] = useState(0);
 
   const nextTestimonial = () => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
   const prevTestimonial = () => setCurrentTestimonial((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
@@ -478,6 +502,62 @@ export default function Landing() {
                 />
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section id="faq" className="max-w-[800px] mx-auto w-full px-4 pt-16 pb-32 relative z-10">
+          <div className="text-center mb-16">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center justify-center bg-indigo-50 text-indigo-600 px-5 py-2 rounded-full font-semibold text-sm mb-6 border border-indigo-100 shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              FAQs
+            </motion.div>
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-bold text-navy tracking-tight"
+            >
+              Frequently asked questions
+            </motion.h2>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            {faqs.map((faq, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 * (idx % 3) }}
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:border-slate-300 transition-colors"
+              >
+                <button 
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full text-left px-6 py-5 flex items-center justify-between font-semibold text-lg text-navy focus:outline-none"
+                >
+                  {faq.q}
+                  {openFaq === idx ? (
+                    <Minus className="w-5 h-5 text-indigo-500 shrink-0 ml-4" />
+                  ) : (
+                    <Plus className="w-5 h-5 text-slate-400 shrink-0 ml-4" />
+                  )}
+                </button>
+                {/* Framer Motion AnimatePresence could be used here for smooth expanding, 
+                    but for simplicity we just render conditionally */}
+                {openFaq === idx && (
+                  <div className="px-6 pb-6 text-slate-600 leading-relaxed">
+                    {faq.a}
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
         </section>
       </main>
