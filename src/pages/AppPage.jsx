@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '../components/Navbar';
+import { OnboardingModal } from '../components/OnboardingModal';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,10 +20,12 @@ const LANGUAGES = [
 ];
 
 export default function AppPage() {
+  // Core states
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [inputText, setInputText] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(true);
   
   // Controls state
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
@@ -658,6 +661,13 @@ export default function AppPage() {
         </div>
 
       </div>
+
+      {/* Onboarding Modal */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingModal isOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
