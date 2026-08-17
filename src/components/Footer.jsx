@@ -57,7 +57,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-slate-700/50 pt-8 mt-4 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-400">
           <div className="flex flex-wrap items-center justify-center gap-6">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+            <Link to="/disclosures" className="hover:text-white transition-colors">AI Disclosures & Data Use</Link>
             <a href="#" className="hover:text-white transition-colors">Terms and Conditions</a>
           </div>
           <p className="text-center">© 2020 - 2025 Re-Level. All rights reserved.</p>
