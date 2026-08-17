@@ -560,6 +560,39 @@ export default function Landing() {
             ))}
           </div>
         </section>
+
+        {/* Final CTA Section */}
+        <section className="w-full px-4 pt-8 pb-32 relative z-10">
+          <div className="max-w-[1100px] mx-auto bg-gradient-to-br from-navy to-slate-900 rounded-[3rem] px-8 py-24 text-center shadow-2xl relative overflow-hidden border border-slate-700">
+            {/* Abstract Background Glow */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/30 via-transparent to-transparent" />
+            
+            <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-4xl md:text-5xl lg:text-[56px] font-extrabold text-white mb-10 tracking-tight leading-[1.1]"
+              >
+                Stop getting locked out of your own homework
+              </motion.h2>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                <Link 
+                  to="/app" 
+                  className="bg-white text-navy hover:bg-slate-50 transition-colors px-10 py-4 rounded-full text-lg font-bold shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] inline-flex items-center gap-2 hover:scale-105 active:scale-95 duration-200"
+                >
+                  Get started free
+                  <Sparkles className="w-5 h-5 text-blue-500" />
+                </Link>
+              </motion.div>
+            </div>
+          </div>
+        </section>
       </main>
       
       <Footer />
