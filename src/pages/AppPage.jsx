@@ -5,6 +5,21 @@ import { useRelevel } from '../context/RelevelContext';
 import { History, Plus, ChevronLeft, ChevronRight, FileText, Settings, LogOut, UploadCloud, Image as ImageIcon, X, Sparkles, ChevronDown, Search, RefreshCw, Play, Pause, Trash2, AlertCircle, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const SAMPLE_TEXTS = [
+  {
+    title: "Science",
+    text: "Mitosis is a process of nuclear division in eukaryotic cells that occurs when a parent cell divides to produce two identical daughter cells. During prophase, the chromatin condenses into distinct chromosomes. The nuclear envelope breaks down, and spindle fibers form at opposite poles of the cell."
+  },
+  {
+    title: "History",
+    text: "The French Revolution was a period of radical political and societal change in France that began with the Estates General of 1789 and ended with the formation of the French Consulate in November 1799. Many of its ideas are considered fundamental principles of liberal democracy."
+  },
+  {
+    title: "Literature",
+    text: "To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles And by opposing end them."
+  }
+];
+
 export default function AppPage() {
   const {
     LANGUAGES,
@@ -434,8 +449,22 @@ export default function AppPage() {
                   </div>
                 )}
                 
+                {/* Sample Texts */}
+                <div className="px-4 pt-3 pb-1 flex flex-wrap gap-2 items-center">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1 hidden sm:inline-block">Try an example:</span>
+                  {SAMPLE_TEXTS.map((sample, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => { setUploadedImage(null); setInputText(sample.text); }}
+                      className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition-colors border border-blue-100/50 min-h-[44px]"
+                    >
+                      {sample.title}
+                    </button>
+                  ))}
+                </div>
+                
                 {/* Textarea */}
-                <div className="p-4 flex-1">
+                <div className="p-4 pt-2 flex-1">
                   <textarea 
                     value={inputText}
                     onChange={(e) => {
